@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
-    "dev": "node dist/server/index.js"
+    "dev": "node dist/src/server/index.js"
   },
   "engines": {
     "node": ">=18"
