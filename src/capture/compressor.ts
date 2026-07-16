@@ -11,8 +11,8 @@ export interface Compressed {
  * Compresses a free-text correction into { tag, antiPattern, fix }.
  *
  * Two implementations exist, so this interface is justified:
- *  - TemplateCompressor — offline, deterministic (Phase 1 default).
- *  - OllamaCompressor   — stub for llm-bridge + a local model.
+ *  - TemplateCompressor — offline, deterministic (default + LLM fallback).
+ *  - LlmCompressor      — OpenAI-compatible model (gemini/bai/ollama/openai) via config.
  */
 export interface Compressor {
   compress(mistake: string, tag?: Tag): Promise<Compressed>;

@@ -13,6 +13,12 @@ export interface MemoryStore {
   update(m: RichMemory): Promise<void>;
   /** Find an existing memory that is a semantic near-duplicate (drives dedup). */
   findSimilar(tag: Tag, antiPattern: string): Promise<RichMemory | null>;
+  /**
+   * Relevance-ranked semantic search over stored memories. Powers recall for both
+   * the offline (keyword) and real (vector) backends, so the recall path is identical.
+   * Returns at most `limit` hits sorted by descending relevance, each with its score.
+   */
+  search(query: string, limit?: number): Promise<Array<{ memory: RichMemory; score: number }>>;
 }
 
 /**

@@ -3,14 +3,12 @@ import { z } from 'zod';
 import { TAGS } from '../types.js';
 import type { MemoryStore } from '../memory/store.js';
 import type { Compressor } from '../capture/compressor.js';
-import type { Embedder } from '../recall/embedder.js';
 import { capture } from '../capture/capture.js';
 import { recall } from '../recall/recall.js';
 
 export interface RemindDeps {
   store: MemoryStore;
   compressor: Compressor;
-  embedder: Embedder;
 }
 
 const tagSchema = z.enum(TAGS as [string, ...string[]]);
@@ -19,10 +17,11 @@ const tagSchema = z.enum(TAGS as [string, ...string[]]);
  * Build a remind MCP server from injected dependencies.
  *
  * Kept dependency-injected so the offline defaults (InMemoryStore +
- * TemplateCompressor + KeywordEmbedder) can be swapped for real backends later.
+ * TemplateCompressor) can be swapped for real backends (Supermemory Local +
+ * LlmCompressor) via config, with no change to tool wiring.
  */
 export function createRemindServer(deps: RemindDeps): McpServer {
-  const { store, compressor, embedder } = deps;
+  const { store, compressor } = deps;
 
   const server = new McpServer({ name: 'remind', version: '0.1.0' });
 
@@ -35,7 +34,7 @@ export function createRemindServer(deps: RemindDeps): McpServer {
       inputSchema: { task_context: z.string() },
     },
     async ({ task_context }) => {
-      const result = await recall(store, embedder, task_context);
+      const result = await recall(store, task_context);
       const structured: Record<string, unknown> = {
         rules: result.rules,
         tokens: result.tokens,

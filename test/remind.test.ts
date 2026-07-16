@@ -1,25 +1,44 @@
 import { describe, it, expect } from 'vitest';
 import type { RichMemory } from '../src/types.js';
+import type { LlmConfig } from '../src/config/index.js';
 import { InMemoryStore } from '../src/memory/in-memory-store.js';
 import { TemplateCompressor } from '../src/capture/template-compressor.js';
+import { LlmCompressor, type OpenAiLike } from '../src/capture/llm-compressor.js';
 import { capture, renderCaveman } from '../src/capture/capture.js';
-import { KeywordEmbedder } from '../src/recall/keyword-embedder.js';
 import { recall } from '../src/recall/recall.js';
 import { seed } from '../src/starter/pack.js';
 
-const embedder = new KeywordEmbedder();
-
 async function freshStore(): Promise<InMemoryStore> {
-  const store = new InMemoryStore();
-  return store;
+  return new InMemoryStore();
 }
+
+/** Build a mock openai-compatible client that returns a fixed completion string. */
+function mockClient(content: string | null, onCall?: () => void): OpenAiLike {
+  return {
+    chat: {
+      completions: {
+        create: async () => {
+          onCall?.();
+          return { choices: [{ message: { content } }] };
+        },
+      },
+    },
+  };
+}
+
+const TEST_LLM_CONFIG: LlmConfig = {
+  provider: 'gemini',
+  baseURL: 'https://example.invalid/',
+  apiKey: 'test-key',
+  model: 'test-model',
+};
 
 describe('recall over the starter pack', () => {
   it('returns a relevant rule and stays within the token budget', async () => {
     const store = await freshStore();
     await seed(store);
 
-    const result = await recall(store, embedder, 'styling a react component');
+    const result = await recall(store, 'styling a react component');
 
     expect(result.rules.length).toBeGreaterThan(0);
     // The UI styling rule should be the most relevant hit.
@@ -61,7 +80,7 @@ describe('capture + dedup', () => {
   });
 });
 
-describe('burn weight affects ranking', () => {
+describe('recall via store.search: burn weight affects ranking', () => {
   it('ranks a high-burn rule above an equally-relevant low-burn rule', async () => {
     const store = await freshStore();
     const compressor = new TemplateCompressor();
@@ -83,7 +102,7 @@ describe('burn weight affects ranking', () => {
     };
     await store.add(competitor);
 
-    const result = await recall(store, embedder, 'slow endpoint');
+    const result = await recall(store, 'slow endpoint');
 
     expect(result.rules[0]).toContain('(×3)');
     expect(result.rules.indexOf(renderCaveman(competitor))).toBeGreaterThan(0);
@@ -110,6 +129,89 @@ describe('TemplateCompressor', () => {
   });
 });
 
+describe('LlmCompressor (mocked client, no network)', () => {
+  it('parses strict JSON from the model', async () => {
+    const client = mockClient(
+      JSON.stringify({ tag: 'UI', antiPattern: 'inline styles', fix: 'use design tokens' }),
+    );
+    const compressor = new LlmCompressor(TEST_LLM_CONFIG, { client });
+
+    const out = await compressor.compress('you used inline styles');
+    expect(out.tag).toBe('UI');
+    expect(out.antiPattern).toBe('inline styles');
+    expect(out.fix).toBe('use design tokens');
+  });
+
+  it('strips ```json code fences before parsing', async () => {
+    const fenced =
+      '```json\n{"tag":"SEC","antiPattern":"secrets in code","fix":"use env vars"}\n```';
+    const compressor = new LlmCompressor(TEST_LLM_CONFIG, { client: mockClient(fenced) });
+
+    const out = await compressor.compress('committed an API key');
+    expect(out.tag).toBe('SEC');
+    expect(out.fix).toBe('use env vars');
+  });
+
+  it('honors the caller-provided tag over the model tag', async () => {
+    const client = mockClient(
+      JSON.stringify({ tag: 'CODE', antiPattern: 'x', fix: 'do y' }),
+    );
+    const compressor = new LlmCompressor(TEST_LLM_CONFIG, { client });
+
+    const out = await compressor.compress('something', 'PERF');
+    expect(out.tag).toBe('PERF');
+  });
+
+  it('falls back to the template compressor on invalid JSON', async () => {
+    let templateUsed = false;
+    const fallback = {
+      async compress() {
+        templateUsed = true;
+        return { tag: 'REQ' as const, antiPattern: 'a', fix: 'b' };
+      },
+    };
+    const compressor = new LlmCompressor(TEST_LLM_CONFIG, {
+      client: mockClient('not json at all'),
+      fallback,
+    });
+
+    const out = await compressor.compress('some correction');
+    expect(templateUsed).toBe(true);
+    expect(out.tag).toBe('REQ');
+  });
+
+  it('falls back when the model omits a concrete fix', async () => {
+    // fix is MANDATORY — an empty fix must trigger the fallback.
+    const client = mockClient(JSON.stringify({ tag: 'UI', antiPattern: 'inline styles', fix: '' }));
+    const realFallback = new TemplateCompressor();
+    const compressor = new LlmCompressor(TEST_LLM_CONFIG, { client, fallback: realFallback });
+
+    const out = await compressor.compress('inline styles → use design tokens', 'UI');
+    expect(out.fix.length).toBeGreaterThan(0);
+    expect(out.fix).toBe('use design tokens'); // came from the template fallback
+  });
+
+  it('falls back when the client throws (network/auth failure)', async () => {
+    const throwingClient: OpenAiLike = {
+      chat: {
+        completions: {
+          create: async () => {
+            throw new Error('network down');
+          },
+        },
+      },
+    };
+    const compressor = new LlmCompressor(TEST_LLM_CONFIG, {
+      client: throwingClient,
+      fallback: new TemplateCompressor(),
+    });
+
+    const out = await compressor.compress('vague commit message', 'COMMIT');
+    expect(out.antiPattern.length).toBeGreaterThan(0);
+    expect(out.fix.length).toBeGreaterThan(0);
+  });
+});
+
 describe('token budget', () => {
   it('caps returned rules within the ~100 token budget even with many rules', async () => {
     const store = await freshStore();
@@ -125,7 +227,7 @@ describe('token budget', () => {
       });
     }
 
-    const result = await recall(store, embedder, 'slow database query performance');
+    const result = await recall(store, 'slow database query performance');
 
     expect(result.tokens).toBeLessThanOrEqual(100);
     expect(result.rules.length).toBeLessThan(50);

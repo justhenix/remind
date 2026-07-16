@@ -1,7 +1,6 @@
-import type { RecallResult, RichMemory } from '../types.js';
+import type { RecallResult } from '../types.js';
 import type { MemoryStore } from '../memory/store.js';
 import { renderCaveman } from '../capture/capture.js';
-import { Embedder } from './embedder.js';
 
 /** Approximate token count for a string (~4 chars per token). */
 export function estimateTokens(text: string): number {
@@ -18,49 +17,47 @@ export interface RecallOptions {
 const DEFAULT_MAX_RULES = 8;
 const DEFAULT_TOKEN_BUDGET = 100;
 
-/** Text used for relevance scoring: the searchable parts of a memory. */
-function searchableText(m: RichMemory): string {
-  return [m.tag, m.antiPattern, m.fix, m.context ?? ''].join(' ');
-}
-
 /**
  * Burn weight: rules corrected more often rank higher. burns >= 1 => weight >= 1.
- * relevance * (1 + ln(burns)).
+ * finalScore = relevance * (1 + ln(burns)).
  */
-function rank(relevance: number, burns: number): number {
+function weight(relevance: number, burns: number): number {
   return relevance * (1 + Math.log(burns));
 }
 
 /**
  * Recall known standards relevant to a task context.
  *
- * embed → score each memory → filter zero-relevance → rank by relevance × burn
- * → take top N → trim to the token budget → format as caveman rules.
+ * store.search (keyword for the offline store, vector for Supermemory Local) →
+ * apply burn weighting → drop non-positive → rank desc → take top N →
+ * trim to the token budget → format as caveman rules.
  * The returned `tokens` is guaranteed <= tokenBudget.
  */
 export async function recall(
   store: MemoryStore,
-  embedder: Embedder,
   taskContext: string,
   opts: RecallOptions = {},
 ): Promise<RecallResult> {
   const maxRules = opts.maxRules ?? DEFAULT_MAX_RULES;
   const tokenBudget = opts.tokenBudget ?? DEFAULT_TOKEN_BUDGET;
 
-  const memories = await store.all();
+  // Pull a candidate pool larger than maxRules so burn weighting can actually
+  // reorder which rules survive, not just re-sort the top few.
+  const candidateLimit = Math.max(maxRules * 3, 24);
+  const candidates = await store.search(taskContext, candidateLimit);
 
-  const scored = memories
-    .map((m) => ({ m, relevance: embedder.score(taskContext, searchableText(m)) }))
-    .filter((s) => s.relevance > 0)
-    .sort((a, b) => rank(b.relevance, b.m.burns) - rank(a.relevance, a.m.burns));
+  const ranked = candidates
+    .map(({ memory, score }) => ({ memory, score: weight(score, memory.burns) }))
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score);
 
   const rules: string[] = [];
   let tokens = 0;
-  for (const { m } of scored) {
+  for (const { memory } of ranked) {
     if (rules.length >= maxRules) {
       break;
     }
-    const rule = renderCaveman(m);
+    const rule = renderCaveman(memory);
     const cost = estimateTokens(rule);
     if (tokens + cost > tokenBudget) {
       break;
