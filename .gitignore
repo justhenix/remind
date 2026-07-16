@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment / secrets
+.env
+.env.local
+*.local
+
+# Private / personal working notes (never commit)
+personal/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+
+# Agent / Tool customizations
+.commandcode/
+.kiro/
+
+# Test / coverage
+coverage/
+.vitest/

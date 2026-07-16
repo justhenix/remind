@@ -1,0 +1,77 @@
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
+import { TAGS } from '../types.js';
+import type { MemoryStore } from '../memory/store.js';
+import type { Compressor } from '../capture/compressor.js';
+import type { Embedder } from '../recall/embedder.js';
+import { capture } from '../capture/capture.js';
+import { recall } from '../recall/recall.js';
+
+export interface RemindDeps {
+  store: MemoryStore;
+  compressor: Compressor;
+  embedder: Embedder;
+}
+
+const tagSchema = z.enum(TAGS as [string, ...string[]]);
+
+/**
+ * Build a remind MCP server from injected dependencies.
+ *
+ * Kept dependency-injected so the offline defaults (InMemoryStore +
+ * TemplateCompressor + KeywordEmbedder) can be swapped for real backends later.
+ */
+export function createRemindServer(deps: RemindDeps): McpServer {
+  const { store, compressor, embedder } = deps;
+
+  const server = new McpServer({ name: 'remind', version: '0.1.0' });
+
+  server.registerTool(
+    'remind_recall',
+    {
+      description:
+        'ALWAYS call this before writing or editing any code. Returns your ' +
+        "project's known standards/anti-patterns to avoid.",
+      inputSchema: { task_context: z.string() },
+    },
+    async ({ task_context }) => {
+      const result = await recall(store, embedder, task_context);
+      const structured: Record<string, unknown> = {
+        rules: result.rules,
+        tokens: result.tokens,
+      };
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result) }],
+        structuredContent: structured,
+      };
+    },
+  );
+
+  server.registerTool(
+    'remind_capture',
+    {
+      description:
+        'Call when the user corrects a standard/anti-pattern, to remember it.',
+      inputSchema: { mistake: z.string(), tag: tagSchema.optional() },
+    },
+    async ({ mistake, tag }) => {
+      const result = await capture(
+        store,
+        compressor,
+        mistake,
+        tag as (typeof TAGS)[number] | undefined,
+      );
+      const structured: Record<string, unknown> = {
+        id: result.id,
+        caveman: result.caveman,
+        burns: result.burns,
+      };
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result) }],
+        structuredContent: structured,
+      };
+    },
+  );
+
+  return server;
+}
