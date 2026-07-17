@@ -15,7 +15,7 @@ remind enforces HOW you want code written — subjective standards, not objectiv
 ## Read this first (every agent, every session)
 1. This is a hackathon. Optimize for a working demo, not perfection. Ship the smallest thing that advances the loop below.
 2. Dogfood our values — the product exists to prevent exactly these: DRY, YAGNI, conventional commits, no AI-slop copy, no secrets in code, no unrequested features.
-3. Never invent upstream APIs. Before writing integration code against supermemory / llm-bridge / supermemory-mcp, read their actual docs/source (links in docs.md) and confirm the calls. If unsure, stub behind a small interface and leave a TODO.
+3. Never invent upstream APIs. Before writing integration code against the Supermemory SDK or the MCP SDK, confirm the calls against node_modules types / official docs. If unsure, stub behind a small interface and leave a TODO.
 4. Prefer editing existing files over adding new ones. Match the existing style.
 
 ## The loop we are building
@@ -25,27 +25,36 @@ remind enforces HOW you want code written — subjective standards, not objectiv
 - One-command init/boot: server + MCP registration + rule-line drop.
 - `remind_recall` and `remind_capture` MCP tools.
 - Two-layer storage (rich memory + caveman projection) in Supermemory Local.
-- llm-bridge compression at capture time.
+- Compression at capture time via an OpenAI-compatible model (local Ollama by default).
 - Curated starter TASTE pack (AI-slop word blocklist, conventional-commit rule, a couple of DRY/YAGNI + security rules) so recall is useful on first run and demonstrates the taste angle immediately.
 
 ## Out of scope (do NOT build now — v2)
 Auto-mining from logs, git revert detection, memory decay/staleness, conflict resolution between rules, team sync/sharing. Building these now is a YAGNI violation.
 
-## Architecture (four layers, one per Supermemory repo)
-- MCP client (any) ⇄ remind MCP server (built on supermemory-mcp) — exposes recall/capture.
-- Orchestration (inside the server): recall = query → tag-scope → rank(relevance × burn) → token-budget → format; capture = compress → embed → dedup → insert-or-increment.
-- llm-bridge — compression + model-agnostic routing.
-- Supermemory Local (core) — embeddings + vector store, entirely on-machine.
+## Architecture (as-built)
+- MCP client (any) ⇄ remind MCP server (`@modelcontextprotocol/sdk`) — exposes recall/capture.
+- Orchestration (inside the server): recall = list rules → tag-scope → rank(relevance × burn) → token-budget → format; capture = compress → dedup → insert-or-increment.
+- Compression — an OpenAI-compatible client (`openai` npm) pointed at a local (Ollama) or cloud (b.ai) model. No llm-bridge; config picks the provider.
+- Supermemory Local (core) — on-machine storage + local embeddings. It's a Unix binary; on Windows it runs in WSL2.
+- Ranking is LOCAL: Supermemory Local's self-hosted vector search (v0.0.5) returns nothing, so remind lists rules via `documents.list` and ranks them with a deterministic keyword scorer. Supermemory = storage; remind = ranking. See "As-built reality" below.
+
+## As-built reality (hard-won; don't relearn)
+- Supermemory Local is a Unix binary; on Windows run it in WSL2 (`curl -fsSL https://supermemory.ai/install | bash`). remind reaches it at http://localhost:6767 (WSL2 forwards localhost).
+- Self-hosted vector search (v0.0.5) returns 0 results even for stored, indexed docs → remind ranks locally over `documents.list`. Recall needs no LLM and no memory agent.
+- Supermemory runs an internal LLM "memory agent" on ingest. remind IGNORES its output, and a document persists even if that agent fails — so any model (or a failing one) works.
+- Memory-agent model reality: local Ollama works (slow on CPU), b.ai `claude-sonnet-5` works, Gemini (`3.1-flash-lite` AND `3.5-flash`) do NOT work with the self-hosted agent. Default: local Ollama (free, on-machine).
+- No usable GPU on the dev machine (AMD iGPU; Ollama runs CPU-only, ~5-7 tok/s). Compression model: `qwen2.5-coder:3b`.
+- Dedup is keyword-based (semantic search unavailable): same tag AND (exact anti-pattern match OR combined antiPattern+fix similarity ≥ threshold).
 
 ## MCP tool contracts
 `remind_recall(task_context: string) -> { rules: string[], tokens: number }`
 - Called BEFORE writing/editing code. Returns known mistakes to avoid.
-- Behavior: embed task_context → vector search → filter by tag scope → rank by relevance × burn count → trim to ≤ ~100 tokens → return formatted caveman rules.
+- Behavior: list stored rules (`documents.list`) → filter by tag scope → rank by keyword relevance × burn count → trim to ≤ ~100 tokens → return formatted caveman rules.
 - The tool description MUST be imperative: "ALWAYS call before writing or editing code."
 
 `remind_capture(mistake: string, tag?: Tag) -> { id: string, caveman: string, burns: number }`
 - Called when the agent is corrected, or invoked directly by the user.
-- Behavior: llm-bridge compresses to `[TAG] anti-pattern → fix` → embed → search for near-duplicate → if match, increment burn count; else insert new rich memory + caveman projection.
+- Behavior: an OpenAI-compatible model compresses to `[TAG] anti-pattern → fix` → dedup against existing rules (same tag + matching anti-pattern/fix) → if match, increment burn count; else insert new rich memory + caveman projection.
 
 ## Caveman rule format
 `[TAG] anti-pattern → fix (×N)`
@@ -75,7 +84,7 @@ remind/
   src/
     server/        # MCP server + tool registration
     recall/        # query, scope, rank, budget, format
-    capture/       # compress (llm-bridge), embed, dedup, store
+    capture/       # compress (OpenAI-compatible), dedup, store
     memory/        # Supermemory Local client wrapper (interface + impl)
     starter/       # curated starter pack rules
     install/       # `remind init`: boot, MCP config, rule-line drop
