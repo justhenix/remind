@@ -21,7 +21,7 @@ export async function capture(
 ): Promise<CaptureResult> {
   const compressed = await compressor.compress(mistake, tag);
 
-  const existing = await store.findSimilar(compressed.tag, compressed.antiPattern);
+  const existing = await store.findSimilar(compressed.tag, compressed.antiPattern, compressed.fix);
   if (existing) {
     const updated: RichMemory = { ...existing, burns: existing.burns + 1 };
     await store.update(updated);

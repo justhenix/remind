@@ -78,6 +78,29 @@ describe('capture + dedup', () => {
     const all = await store.all();
     expect(all).toHaveLength(1);
   });
+
+  it('merges a re-worded anti-pattern that shares the same fix', async () => {
+    const store = await freshStore();
+    const compressor = new TemplateCompressor();
+
+    const first = await capture(store, compressor, 'var keyword → use const or let', 'CODE');
+    // Different anti-pattern wording, same fix — semantically the same mistake.
+    const second = await capture(store, compressor, 'var for variables → use const or let', 'CODE');
+
+    expect(second.id).toBe(first.id);
+    expect(second.burns).toBe(2);
+    expect(await store.all()).toHaveLength(1);
+  });
+
+  it('keeps genuinely distinct rules in the same tag separate', async () => {
+    const store = await freshStore();
+    const compressor = new TemplateCompressor();
+
+    await capture(store, compressor, 'var keyword → use const or let', 'CODE');
+    await capture(store, compressor, 'console.log in production → remove debug logs', 'CODE');
+
+    expect(await store.all()).toHaveLength(2);
+  });
 });
 
 describe('recall via store.search: burn weight affects ranking', () => {

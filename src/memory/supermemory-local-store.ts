@@ -1,7 +1,7 @@
 import Supermemory from 'supermemory';
 import type { RichMemory, Tag } from '../types.js';
 import { TAGS } from '../types.js';
-import { MemoryStore } from './store.js';
+import { MemoryStore, findDuplicate } from './store.js';
 import type { SupermemoryConfig } from '../config/index.js';
 import { KeywordEmbedder } from '../recall/keyword-embedder.js';
 
@@ -11,17 +11,15 @@ import { KeywordEmbedder } from '../recall/keyword-embedder.js';
  * SDK shapes were confirmed against node_modules/supermemory/*.d.ts:
  *  - Client:  new Supermemory({ apiKey, baseURL })                      (client.d.ts)
  *  - Add:     client.add({ content, containerTag, customId, metadata }) (top-level.d.ts, AddParams)
- *  - Search:  client.search.execute({ q, containerTag, limit }) -> { results: [{ metadata, score }] } (search.d.ts)
  *  - List:    client.documents.list({ containerTags, limit }) -> { memories: [{ metadata }] }          (documents.d.ts)
  *
- * Two-layer model: the human-readable rule goes in `content` (what the vector index
- * matches on); the structured RichMemory fields live in `metadata` so we can rebuild
- * the rule on the way out. `customId = m.id` gives us upsert semantics.
+ * Storage-only role: Supermemory holds the rules; remind ranks and dedups locally.
+ * The human-readable rule goes in `content`; the structured RichMemory fields live in
+ * `metadata` so we can rebuild the rule on the way out. `customId = m.id` gives upsert.
+ * We deliberately do NOT use client.search.execute — see search() below.
  */
 
 const DEFAULT_CONTAINER_TAG = 'remind';
-/** Dedup only when a search hit is confidently the same rule. */
-const DEDUP_SCORE_THRESHOLD = 0.6;
 /** documents.list is unpaginated here; cap the page for the offline-style all(). */
 const LIST_LIMIT = 100;
 
@@ -85,12 +83,9 @@ export class SupermemoryLocalStore implements MemoryStore {
       .slice(0, limit);
   }
 
-  async findSimilar(tag: Tag, antiPattern: string): Promise<RichMemory | null> {
-    const hits = await this.search(antiPattern, 10);
-    const best = hits
-      .filter((h) => h.memory.tag === tag && h.score >= DEDUP_SCORE_THRESHOLD)
-      .sort((a, b) => b.score - a.score)[0];
-    return best ? best.memory : null;
+  async findSimilar(tag: Tag, antiPattern: string, fix: string): Promise<RichMemory | null> {
+    const all = await this.all();
+    return findDuplicate(all, tag, antiPattern, fix, this.embedder);
   }
 
   async all(): Promise<RichMemory[]> {

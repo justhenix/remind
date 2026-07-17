@@ -1,5 +1,5 @@
 import type { RichMemory, Tag } from '../types.js';
-import { MemoryStore, normalizeAntiPattern } from './store.js';
+import { MemoryStore, findDuplicate } from './store.js';
 import { KeywordEmbedder } from '../recall/keyword-embedder.js';
 
 /** Text used for relevance scoring: the searchable parts of a memory. */
@@ -10,10 +10,9 @@ function searchableText(m: RichMemory): string {
 /**
  * In-process MemoryStore backed by a plain array.
  *
- * findSimilar powers dedup for the PoC: two memories match when they share a
- * tag and their anti-patterns are equal after normalization (case/whitespace/
- * punctuation-insensitive). search() uses the deterministic KeywordEmbedder so the
- * offline recall path mirrors the real (vector-backed) store.
+ * findSimilar delegates to the shared findDuplicate (exact anti-pattern match, or
+ * combined antiPattern+fix similarity over DEDUP_THRESHOLD). search() uses the
+ * deterministic KeywordEmbedder so the offline recall path mirrors the real store.
  */
 export class InMemoryStore implements MemoryStore {
   private readonly memories: RichMemory[] = [];
@@ -36,13 +35,8 @@ export class InMemoryStore implements MemoryStore {
     this.memories[i] = m;
   }
 
-  async findSimilar(tag: Tag, antiPattern: string): Promise<RichMemory | null> {
-    const target = normalizeAntiPattern(antiPattern);
-    return (
-      this.memories.find(
-        (m) => m.tag === tag && normalizeAntiPattern(m.antiPattern) === target,
-      ) ?? null
-    );
+  async findSimilar(tag: Tag, antiPattern: string, fix: string): Promise<RichMemory | null> {
+    return findDuplicate(this.memories, tag, antiPattern, fix, this.embedder);
   }
 
   async search(
