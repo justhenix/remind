@@ -206,6 +206,19 @@ export async function startDashboard(): Promise<void> {
     }
   });
 
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(
+        `[remindy] port ${port} is already in use. The dashboard may already be ` +
+          `running at http://localhost:${port}. Open it, or pick another port with ` +
+          `REMINDY_DASHBOARD_PORT=<port> npx remindy dashboard`,
+      );
+    } else {
+      console.error(`[remindy] dashboard failed to start: ${err.message}`);
+    }
+    process.exit(1);
+  });
+
   server.listen(port, () => {
     console.error(`[remindy] dashboard started: http://localhost:${port}`);
   });
