@@ -19,10 +19,8 @@ import { KeywordEmbedder } from '../recall/keyword-embedder.js';
  * We deliberately do NOT use client.search.execute — see search() below.
  */
 
-// NOTE: kept as 'remind' (not 'remindy') on purpose — this is the Supermemory
-// containerTag existing stored rules were written under. Changing it would
-// silently orphan every rule already captured; not a user-facing string.
-const DEFAULT_CONTAINER_TAG = 'remind';
+// Supermemory containerTag that rules are stored under. Not user-facing.
+const DEFAULT_CONTAINER_TAG = 'remindy';
 /** documents.list is unpaginated here; cap the page for the offline-style all(). */
 const LIST_LIMIT = 100;
 
