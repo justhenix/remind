@@ -7,8 +7,14 @@ import { config as loadDotenv } from 'dotenv';
  */
 loadDotenv();
 
-/** OpenAI-compatible LLM providers remind can route to (config only, no code change). */
-export type LlmProviderName = 'gemini' | 'bai' | 'ollama' | 'openai';
+/**
+ * OpenAI-compatible LLM providers remind can route to (config only, no code change).
+ * Scoped to what we actually run and have validated:
+ *  - ollama: local, on-machine compression (the default; qwen2.5-coder:3b).
+ *  - bai:    b.ai cloud (OpenAI-compatible; a real key is present and the API is verified).
+ * Other providers were removed to avoid claiming untested paths.
+ */
+export type LlmProviderName = 'ollama' | 'bai';
 
 export interface LlmConfig {
   provider: LlmProviderName;
@@ -23,8 +29,7 @@ export interface SupermemoryConfig {
   apiKey: string | undefined;
 }
 
-// Verified base URLs (see task notes / provider docs).
-const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/';
+// Verified base URLs (see provider docs).
 const BAI_DEFAULT_URL = 'https://api.b.ai/v1';
 const OLLAMA_DEFAULT_URL = 'http://localhost:11434';
 const SUPERMEMORY_DEFAULT_URL = 'http://localhost:6767';
@@ -35,33 +40,19 @@ function env(name: string): string | undefined {
   return v !== undefined && v.trim().length > 0 ? v.trim() : undefined;
 }
 
-/** Resolve the active provider from LLM_PROVIDER; default gemini; unknown -> gemini. */
+/** Resolve the active provider from LLM_PROVIDER; default ollama; unknown -> ollama. */
 export function resolveLlmProvider(): LlmProviderName {
-  const raw = (env('LLM_PROVIDER') ?? 'gemini').toLowerCase();
-  if (raw === 'gemini' || raw === 'bai' || raw === 'ollama' || raw === 'openai') {
+  const raw = (env('LLM_PROVIDER') ?? 'ollama').toLowerCase();
+  if (raw === 'ollama' || raw === 'bai') {
     return raw;
   }
-  return 'gemini';
+  return 'ollama';
 }
 
 /** Map the active provider to { baseURL, apiKey, model }. Never throws. */
 export function resolveLlmConfig(): LlmConfig {
   const provider = resolveLlmProvider();
   switch (provider) {
-    case 'gemini':
-      return {
-        provider,
-        baseURL: GEMINI_BASE_URL,
-        apiKey: env('GEMINI_API_KEY'),
-        model: env('GEMINI_MODEL'),
-      };
-    case 'bai':
-      return {
-        provider,
-        baseURL: env('BAI_API_URL') ?? BAI_DEFAULT_URL,
-        apiKey: env('BAI_API_KEY'),
-        model: env('BAI_MODEL'),
-      };
     case 'ollama':
       return {
         provider,
@@ -70,12 +61,12 @@ export function resolveLlmConfig(): LlmConfig {
         apiKey: 'ollama',
         model: env('OLLAMA_MODEL'),
       };
-    case 'openai':
+    case 'bai':
       return {
         provider,
-        baseURL: undefined,
-        apiKey: env('OPENAI_API_KEY'),
-        model: env('OPENAI_MODEL'),
+        baseURL: env('BAI_API_URL') ?? BAI_DEFAULT_URL,
+        apiKey: env('BAI_API_KEY'),
+        model: env('BAI_MODEL'),
       };
   }
 }
