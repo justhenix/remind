@@ -30,6 +30,7 @@ Thumbs.db
 # Agent / Tool customizations
 .commandcode/
 .kiro/
+.agents/
 
 # Test / coverage
 coverage/
