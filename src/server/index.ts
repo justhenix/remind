@@ -35,7 +35,7 @@ export async function createOfflineDeps(): Promise<RemindDeps> {
  *
  * Backend selection is logged to STDERR (stdout is reserved for the stdio transport).
  * The real store is intentionally NOT seeded here — seeding on every boot would spam
- * duplicates. Load the starter pack once with `remind seed` instead.
+ * duplicates. Load the starter pack once with `remindy seed` instead.
  */
 export async function createDeps(): Promise<RemindDeps> {
   const smConfig = resolveSupermemoryConfig();
@@ -44,27 +44,59 @@ export async function createDeps(): Promise<RemindDeps> {
   let store: MemoryStore;
   if (isSupermemoryConfigured(smConfig)) {
     store = new SupermemoryLocalStore(smConfig);
-    console.error(`[remind] memory: Supermemory Local @ ${smConfig.url}`);
+    console.error(`[remindy] memory: Supermemory Local @ ${smConfig.url}`);
   } else {
     const mem = new InMemoryStore();
     await seed(mem);
     store = mem;
-    console.error('[remind] memory: in-memory (offline), seeded with starter pack');
+    console.error('[remindy] memory: in-memory (offline), seeded with starter pack');
   }
 
   let compressor: Compressor;
   if (isLlmConfigured(llmConfig)) {
     compressor = new LlmCompressor(llmConfig);
-    console.error(`[remind] compressor: LLM (${llmConfig.provider}/${llmConfig.model})`);
+    console.error(`[remindy] compressor: LLM (${llmConfig.provider}/${llmConfig.model})`);
   } else {
     compressor = new TemplateCompressor();
-    console.error('[remind] compressor: template (offline)');
+    console.error('[remindy] compressor: template (offline)');
   }
 
   return { store, compressor };
 }
 
-/** Start the remind MCP server over stdio using config-resolved dependencies. */
+/** Human-readable status of the resolved backends, for `doctor` and the dashboard. */
+export interface BackendStatus {
+  /** True only when the shared, persistent Supermemory store is active. */
+  supermemoryActive: boolean;
+  /** Store label, e.g. "Supermemory Local @ …" or the offline in-memory warning. */
+  store: string;
+  /** Compressor label, e.g. "b.ai/claude-sonnet-5" or "template (offline)". */
+  compressor: string;
+}
+
+/**
+ * Report which backends config resolves to, without constructing them.
+ *
+ * The store line is deliberately blunt about the offline case: an in-memory store
+ * is per-process, so it is neither shared across tools nor persistent. Surfacing
+ * this stops a demo from silently running on isolated memory and looking real.
+ */
+export function describeBackend(): BackendStatus {
+  const sm = resolveSupermemoryConfig();
+  const llm = resolveLlmConfig();
+  const supermemoryActive = isSupermemoryConfigured(sm);
+  return {
+    supermemoryActive,
+    store: supermemoryActive
+      ? `Supermemory Local @ ${sm.url} (shared, persistent)`
+      : 'in-memory (offline — NOT shared across tools, NOT persistent)',
+    compressor: isLlmConfigured(llm)
+      ? `LLM (${llm.provider}/${llm.model})`
+      : 'template (offline)',
+  };
+}
+
+/** Start the remindy MCP server over stdio using config-resolved dependencies. */
 export async function main(): Promise<void> {
   const deps = await createDeps();
   const server = createRemindServer(deps);
@@ -80,7 +112,7 @@ const invokedDirectly =
 
 if (invokedDirectly) {
   main().catch((err) => {
-    console.error('remind server failed to start:', err);
+    console.error('remindy server failed to start:', err);
     process.exit(1);
   });
 }
