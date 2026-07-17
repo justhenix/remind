@@ -1,0 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..700;1,300..700&family=Stack+Sans:wght@400..700&family=Stack+Sans+Notch:wght@400..700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  /* Logo: Stack Sans Notch. Headings: Stack Sans. Body/UI/code: Host Grotesk. No mono. */
+  --font-logo: 'Stack Sans Notch', 'Stack Sans', sans-serif;
+  --font-hero: 'Stack Sans', 'Host Grotesk', sans-serif;
+  --font-sans: 'Host Grotesk', sans-serif;
+
+  --color-line: rgba(128, 128, 128, 0.15);
+  --color-grid: rgba(128, 128, 128, 0.07);
+}
+
+/* Dark only. Strict #0C0C0C surface, #FDFFF8 ink. */
+:root {
+  --surface: #0C0C0C;
+  --ink: #FDFFF8;
+  --muted: #a3a3a3;
+  --square: #2D4A22;
+  --square-glow: #4ADE80;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+/* ============================================================
+   Full-bleed 24px architectural line grid
+   ============================================================ */
+.canvas-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ============================================================
+   Dissolving, twinkling square matrix in the left / right margins
+   ============================================================ */
+.margin-field {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 30vw;
+  max-width: 460px;
+  pointer-events: none;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(auto-fill, 24px);
+  grid-auto-columns: 24px;
+  align-content: center;
+}
+.margin-field.left {
+  left: 0;
+  justify-content: start;
+  -webkit-mask-image: linear-gradient(to right, black 0%, black 22%, transparent 88%);
+  mask-image: linear-gradient(to right, black 0%, black 22%, transparent 88%);
+}
+.margin-field.right {
+  right: 0;
+  justify-content: end;
+  -webkit-mask-image: linear-gradient(to left, black 0%, black 22%, transparent 88%);
+  mask-image: linear-gradient(to left, black 0%, black 22%, transparent 88%);
+}
+.cell { position: relative; }
+.sq {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--square);
+  opacity: 0.3;
+  animation: twinkle var(--dur, 3s) ease-in-out var(--dl, 0s) infinite;
+}
+.sq.glow {
+  background: var(--square-glow);
+  animation-name: glowpulse;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.12; }
+  50%      { opacity: 0.45; }
+}
+@keyframes glowpulse {
+  0%, 100% { opacity: 0.15; }
+  50%      { opacity: 0.75; }
+}
+
+@media (max-width: 1024px) {
+  .margin-field { display: none; }
+}
+
+/* ============================================================
+   Blueprint frame: 1px border + corner crosses that overshoot
+   ============================================================ */
+.frame {
+  position: relative;
+  border: 1px solid var(--color-line);
+  background: var(--surface);
+}
+.plus {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  z-index: 2;
+}
+.plus::before,
+.plus::after {
+  content: '';
+  position: absolute;
+  background: rgba(128, 128, 128, 0.35);
+}
+.plus::before { top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-0.5px); }
+.plus::after  { left: 50%; top: 0; bottom: 0; width: 1px; transform: translateX(-0.5px); }
+.plus.tl { top: -5px; left: -5px; }
+.plus.tr { top: -5px; right: -5px; }
+.plus.bl { bottom: -5px; left: -5px; }
+.plus.br { bottom: -5px; right: -5px; }
+
+/* ============================================================
+   Contextual rule badges (markers along the margin grid)
+   ============================================================ */
+.badge {
+  position: fixed;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 8px 0 4px;
+  border-radius: 4px;
+  background: var(--bg);
+  color: #FDFFF8;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.badge b {
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.22);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+/* badges only live on the hero; anime.js controls opacity */
+.badge { opacity: 0; }
+@media (max-width: 1024px) {
+  .badge { display: none; }
+}
+
+/* ============================================================
+   Section hierarchy
+   ============================================================ */
+.eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ghost-num {
+  font-family: var(--font-hero);
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 1;
+  color: var(--ink);
+  opacity: 0.1;
+}
+.feat-mark {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--mk, #4ADE80);
+}
+
+/* ============================================================
+   CTA command bar
+   ============================================================ */
+.cmd {
+  font-family: var(--font-sans);
+  font-variant-ligatures: none;
+}
+
+/* ============================================================
+   Scroll reveal (anime.js sets final state; this is the resting start)
+   ============================================================ */
+.ri { opacity: 0; }
+.no-js .ri { opacity: 1; }

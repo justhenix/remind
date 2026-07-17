@@ -1,0 +1,319 @@
+---
+import '../styles/global.css';
+---
+
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>remindy</title>
+    <meta name="description" content="Teach any MCP agent your standards once. It holds every code write to them, for about 15 tokens a turn." />
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+  </head>
+  <body class="min-h-screen flex flex-col">
+
+    <!-- Full-bleed architectural grid -->
+    <div class="canvas-grid" aria-hidden="true"></div>
+
+    <!-- Dissolving square matrix in the margins -->
+    <div id="field-left" class="margin-field left" aria-hidden="true"></div>
+    <div id="field-right" class="margin-field right" aria-hidden="true"></div>
+
+    <!-- Contextual rule badges, anchored on the margin grid -->
+    <span class="badge" style="--bg:#3d7a45; top:192px; left:72px;"><b>UI</b>design tokens</span>
+    <span class="badge" style="--bg:#6d5bd0; top:384px; left:48px;"><b>CODE</b>compute in render</span>
+    <span class="badge" style="--bg:#2f6fb0; top:576px; left:96px;"><b>COMMIT</b>type(scope): msg</span>
+    <span class="badge" style="--bg:#b7791f; top:240px; right:72px;"><b>COPY</b>plain verbs</span>
+    <span class="badge" style="--bg:#c0453b; top:432px; right:48px;"><b>SEC</b>env vars, not code</span>
+    <span class="badge" style="--bg:#148f82; top:600px; right:96px;"><b>REQ</b>build what's specced</span>
+
+    <!-- Navbar -->
+    <header class="relative z-10 w-full max-w-5xl mx-auto flex justify-between items-center px-6 py-8 md:py-10">
+      <div class="flex items-baseline gap-3">
+        <span class="font-logo text-xl tracking-tight lowercase" style="font-weight:700;">remindy</span>
+        <span class="hidden sm:inline text-xs text-[var(--muted)]">taste & standards layer for AI coding agents</span>
+      </div>
+      <nav class="flex items-center gap-6 text-xs text-[var(--muted)]">
+        <a href="#what" class="hover:text-[var(--ink)] transition-colors">what it does</a>
+        <a href="#how" class="hover:text-[var(--ink)] transition-colors hidden sm:inline">how it works</a>
+        <a href="/docs" class="hover:text-[var(--ink)] transition-colors">docs</a>
+        <a href="https://github.com/justhenix/remindy" class="hover:text-[var(--ink)] transition-colors">github</a>
+      </nav>
+    </header>
+
+    <!-- Hero -->
+    <main class="relative z-10 flex justify-center px-6 pt-6 pb-20">
+      <section id="hero" data-anim="rise" class="frame w-full max-w-4xl px-8 md:px-16 py-14 md:py-16 text-center">
+        <span class="plus tl"></span><span class="plus tr"></span>
+        <span class="plus bl"></span><span class="plus br"></span>
+
+        <span class="ri inline-block text-xs text-[var(--muted)] border border-[var(--color-line)] rounded-[4px] px-3 py-1 mb-8">
+          portable taste layer · MCP-native
+        </span>
+
+        <h1 class="ri font-hero text-4xl md:text-6xl tracking-tight leading-[1.02] mb-6" style="font-weight:600;">
+          Enforce your standards<br />on every AI agent.
+        </h1>
+
+        <p class="ri text-[15px] text-[var(--muted)] max-w-sm mx-auto leading-relaxed mb-10">
+          Teach it your standards once. Respected in every tool, for ~15 tokens a turn.
+        </p>
+
+        <div class="ri flex flex-col items-center gap-3">
+          <button id="cta" class="cmd group inline-flex items-center gap-3 border border-[var(--color-line)] rounded-[4px] pl-4 pr-3 py-2.5 hover:border-[var(--muted)] transition-colors cursor-pointer">
+            <span class="text-[var(--muted)] select-none">$</span>
+            <span class="text-sm text-[var(--ink)]">npx remindy init</span>
+            <span id="cta-status" class="text-xs text-[var(--muted)] border-l border-[var(--color-line)] pl-3">copy</span>
+          </button>
+          <div class="flex items-center gap-4 text-xs text-[var(--muted)]">
+            <span>one command, runs on your machine</span>
+            <span class="opacity-40">·</span>
+            <a href="https://github.com/justhenix/remindy" class="inline-flex items-center gap-1.5 hover:text-[var(--ink)] transition-colors">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+              view on github
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- What it does -->
+    <section id="what" data-anim="rise" class="relative z-10 w-full max-w-3xl mx-auto px-6 py-20 text-center">
+      <span class="ri eyebrow mb-5">what it does</span>
+      <h2 class="ri font-hero text-3xl md:text-5xl tracking-tight leading-[1.05] mb-5" style="font-weight:600;">
+        A memory layer for your taste.
+      </h2>
+      <p class="ri text-[15px] text-[var(--muted)] max-w-md mx-auto leading-relaxed">
+        Linters catch syntax. remindy catches taste, and feeds it to your agent before it writes.
+      </p>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" data-anim="steps" class="relative z-10 w-full max-w-4xl mx-auto px-6 py-16">
+      <div class="mb-10">
+        <span class="ri eyebrow block mb-3">how it works</span>
+        <h3 class="ri font-hero text-2xl md:text-3xl tracking-tight" style="font-weight:600;">
+          The loop, on every write.
+        </h3>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3">
+        <div class="ri frame px-6 py-8">
+          <span class="plus tl"></span><span class="plus tr"></span>
+          <span class="plus bl"></span><span class="plus br"></span>
+          <div class="ghost-num mb-4">01</div>
+          <h4 class="font-hero text-base tracking-tight mb-2" style="font-weight:600;">Recall</h4>
+          <p class="text-xs text-[var(--muted)] leading-relaxed">
+            Agent pulls your known mistakes before it writes.
+          </p>
+        </div>
+        <div class="ri frame px-6 py-8 md:border-l-0">
+          <span class="plus tl"></span><span class="plus tr"></span>
+          <span class="plus bl"></span><span class="plus br"></span>
+          <div class="ghost-num mb-4">02</div>
+          <h4 class="font-hero text-base tracking-tight mb-2" style="font-weight:600;">Write</h4>
+          <p class="text-xs text-[var(--muted)] leading-relaxed">
+            Codes inside your standards. No slop, no mess.
+          </p>
+        </div>
+        <div class="ri frame px-6 py-8 md:border-l-0">
+          <span class="plus tl"></span><span class="plus tr"></span>
+          <span class="plus bl"></span><span class="plus br"></span>
+          <div class="ghost-num mb-4">03</div>
+          <h4 class="font-hero text-base tracking-tight mb-2" style="font-weight:600;">Capture</h4>
+          <p class="text-xs text-[var(--muted)] leading-relaxed">
+            Correct once. Remembered in every tool.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why remindy -->
+    <section id="features" data-anim="steps" class="relative z-10 w-full max-w-4xl mx-auto px-6 py-16 pb-24">
+      <div class="mb-10">
+        <span class="ri eyebrow block mb-3">why remindy</span>
+        <h3 class="ri font-hero text-2xl md:text-3xl tracking-tight" style="font-weight:600;">
+          Portable, tiny, and local.
+        </h3>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-10">
+        <div class="ri">
+          <span class="feat-mark mb-4" style="--mk:#4ADE80;"></span>
+          <h4 class="font-hero text-base tracking-tight mt-3 mb-2" style="font-weight:600;">Universal via MCP</h4>
+          <p class="text-xs text-[var(--muted)] leading-relaxed">
+            One fix, respected across every MCP tool.
+          </p>
+        </div>
+        <div class="ri">
+          <span class="feat-mark mb-4" style="--mk:#6d5bd0;"></span>
+          <h4 class="font-hero text-base tracking-tight mt-3 mb-2" style="font-weight:600;">Caveman compression</h4>
+          <p class="text-xs text-[var(--muted)] leading-relaxed">
+            One terse line per rule. ~15 tokens.
+          </p>
+        </div>
+        <div class="ri">
+          <span class="feat-mark mb-4" style="--mk:#2f6fb0;"></span>
+          <h4 class="font-hero text-base tracking-tight mt-3 mb-2" style="font-weight:600;">Supermemory Local</h4>
+          <p class="text-xs text-[var(--muted)] leading-relaxed">
+            Fully on device. Nothing leaves the machine.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section id="start" data-anim="rise" class="relative z-10 w-full max-w-4xl mx-auto px-6 pb-24">
+      <div class="ri frame px-8 md:px-16 py-16 md:py-20 text-center">
+        <span class="plus tl"></span><span class="plus tr"></span>
+        <span class="plus bl"></span><span class="plus br"></span>
+        <h2 class="ri font-hero text-3xl md:text-5xl tracking-tight leading-[1.05] mb-4" style="font-weight:600;">
+          Set your standards once.
+        </h2>
+        <p class="ri text-[15px] text-[var(--muted)] max-w-sm mx-auto leading-relaxed mb-8">
+          One command. Runs local. Works in every MCP tool.
+        </p>
+        <div class="ri flex justify-center">
+          <button id="cta2" class="cmd group inline-flex items-center gap-3 border border-[var(--color-line)] rounded-[4px] pl-4 pr-3 py-2.5 hover:border-[var(--muted)] transition-colors cursor-pointer">
+            <span class="text-[var(--muted)] select-none">$</span>
+            <span class="text-sm text-[var(--ink)]">npx remindy init</span>
+            <span id="cta2-status" class="text-xs text-[var(--muted)] border-l border-[var(--color-line)] pl-3">copy</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative z-10 w-full max-w-4xl mx-auto text-center text-xs text-[var(--muted)] px-6 py-8">
+      <p>2026 remindy · powered by <a href="https://supermemory.ai" class="text-[var(--ink)] hover:opacity-70 transition-opacity underline underline-offset-2 decoration-[var(--color-line)]">supermemory.ai</a></p>
+    </footer>
+
+    <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script is:inline>
+      // Copy command
+      const cta = document.getElementById('cta');
+      const ctaStatus = document.getElementById('cta-status');
+      function wireCopy(btn, status) {
+        if (!btn) return;
+        btn.addEventListener('click', () => {
+          navigator.clipboard.writeText('npx remindy init');
+          status.textContent = 'copied';
+          setTimeout(() => { status.textContent = 'copy'; }, 1600);
+        });
+      }
+      wireCopy(cta, ctaStatus);
+      wireCopy(document.getElementById('cta2'), document.getElementById('cta2-status'));
+
+      // Scatter twinkling flat squares across margin fields
+      function fill(el, cols) {
+        el.innerHTML = '';
+        const rows = Math.ceil(window.innerHeight / 24) + 2;
+        const total = rows * cols;
+        for (let i = 0; i < total; i++) {
+          const c = document.createElement('span');
+          c.className = 'cell';
+          if (Math.random() > 0.7) {
+            const s = document.createElement('i');
+            s.className = 'sq' + (Math.random() > 0.9 ? ' glow' : '');
+            s.style.setProperty('--dur', (2 + Math.random() * 4).toFixed(2) + 's');
+            s.style.setProperty('--dl', (Math.random() * 4).toFixed(2) + 's');
+            c.appendChild(s);
+          }
+          el.appendChild(c);
+        }
+      }
+      const fl = document.getElementById('field-left');
+      const fr = document.getElementById('field-right');
+      const paint = () => { fill(fl, 16); fill(fr, 16); };
+      paint();
+      let t;
+      window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(paint, 200); });
+
+      // Occasional green burst: a few squares briefly light up like activity
+      setInterval(() => {
+        if (typeof anime === 'undefined') return;
+        const sqs = Array.from(document.querySelectorAll('.sq'));
+        if (!sqs.length) return;
+        const pick = sqs.sort(() => Math.random() - 0.5).slice(0, 10);
+        anime({
+          targets: pick,
+          backgroundColor: [
+            { value: '#4ADE80', duration: 500 },
+            { value: '#2D4A22', duration: 1200 }
+          ],
+          opacity: [
+            { value: 0.85, duration: 500 },
+            { value: 0.3, duration: 1200 }
+          ],
+          delay: anime.stagger(60),
+          easing: 'easeInOutSine'
+        });
+      }, 1800);
+
+      // Scroll-reveal transitions (clean, staggered, not just fade)
+      function reveal(el) {
+        const kind = el.dataset.anim;
+        const items = el.querySelectorAll('.ri');
+        if (typeof anime === 'undefined') {
+          items.forEach(i => (i.style.opacity = 1));
+          return;
+        }
+        if (kind === 'rise') {
+          anime({
+            targets: items,
+            translateY: [42, 0],
+            scale: [0.96, 1],
+            opacity: [0, 1],
+            delay: anime.stagger(90, { start: 60 }),
+            duration: 900,
+            easing: 'easeOutExpo'
+          });
+        } else if (kind === 'steps') {
+          anime({
+            targets: items,
+            translateY: [30, 0],
+            translateX: [-18, 0],
+            opacity: [0, 1],
+            delay: anime.stagger(110),
+            duration: 780,
+            easing: 'easeOutQuint'
+          });
+        }
+      }
+
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            reveal(e.target);
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.2 });
+
+      document.querySelectorAll('[data-anim]').forEach((el) => io.observe(el));
+
+      // Colored badges live only on the hero: fade in on enter, out on leave
+      const heroEl = document.getElementById('hero');
+      const heroIO = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (typeof anime === 'undefined') return;
+          if (e.isIntersecting) {
+            anime({
+              targets: '.badge',
+              opacity: [null, 1],
+              translateY: [10, 0],
+              delay: anime.stagger(70),
+              duration: 650,
+              easing: 'easeOutQuad'
+            });
+          } else {
+            anime({ targets: '.badge', opacity: 0, translateY: 6, duration: 350, easing: 'easeOutQuad' });
+          }
+        });
+      }, { threshold: 0.35 });
+      heroIO.observe(heroEl);
+    </script>
+  </body>
+</html>
