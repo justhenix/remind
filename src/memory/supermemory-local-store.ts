@@ -3,6 +3,7 @@ import type { RichMemory, Tag } from '../types.js';
 import { TAGS } from '../types.js';
 import { MemoryStore } from './store.js';
 import type { SupermemoryConfig } from '../config/index.js';
+import { KeywordEmbedder } from '../recall/keyword-embedder.js';
 
 /**
  * Real adapter for Supermemory Local (on-machine HTTP backend).
@@ -31,6 +32,8 @@ export interface SupermemoryStoreOptions {
 export class SupermemoryLocalStore implements MemoryStore {
   private readonly client: Supermemory;
   private readonly containerTag: string;
+  /** Local ranker — see search() for why we don't use Supermemory's vector search. */
+  private readonly embedder = new KeywordEmbedder();
 
   constructor(config: SupermemoryConfig, opts: SupermemoryStoreOptions = {}) {
     // Confirmed: constructor throws if apiKey is undefined, so callers gate on
@@ -56,23 +59,30 @@ export class SupermemoryLocalStore implements MemoryStore {
     await this.add(m);
   }
 
+  /**
+   * Rank stored rules locally over `documents.list`, rather than calling
+   * `client.search.execute`.
+   *
+   * Supermemory Local's self-hosted vector search (v0.0.5) returns 0 results even
+   * for stored, fully-indexed documents, so we can't rely on it. Instead we list
+   * the rules in our container (list works reliably) and score them with the same
+   * deterministic KeywordEmbedder the in-memory store uses. The taste pack is small
+   * (tens of rules), so listing + local scoring is cheap and, crucially, needs no
+   * LLM memory-agent step — recall stays fully local and free.
+   */
   async search(
     query: string,
     limit = 8,
   ): Promise<Array<{ memory: RichMemory; score: number }>> {
-    const res = await this.client.search.execute({
-      q: query,
-      containerTag: this.containerTag,
-      limit,
-    });
-    const hits: Array<{ memory: RichMemory; score: number }> = [];
-    for (const result of res.results) {
-      const memory = fromMetadata(result.metadata);
-      if (memory) {
-        hits.push({ memory, score: result.score });
-      }
-    }
-    return hits;
+    const all = await this.all();
+    return all
+      .map((memory) => ({
+        memory,
+        score: this.embedder.score(query, `${memory.tag} ${memory.antiPattern} ${memory.fix}`),
+      }))
+      .filter((hit) => hit.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit);
   }
 
   async findSimilar(tag: Tag, antiPattern: string): Promise<RichMemory | null> {
