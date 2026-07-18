@@ -18,17 +18,31 @@ interface McpClient {
   detectDir: string;
   /** Path to the MCP config file, relative to project root. */
   configPath: string;
+  /**
+   * Config shape. Most clients use `{ "mcpServers": { name: { command, args } } }`.
+   * VS Code / Copilot uses `{ "servers": { name: { type, command, args } } }`.
+   */
+  format: 'mcpServers' | 'vscode';
 }
 
 const CLIENTS: McpClient[] = [
-  { name: 'Kiro', detectDir: '.kiro', configPath: '.kiro/settings/mcp.json' },
-  { name: 'Cursor', detectDir: '.cursor', configPath: '.cursor/mcp.json' },
-  { name: 'Windsurf', detectDir: '.windsurf', configPath: '.windsurf/mcp.json' },
-  { name: 'Antigravity', detectDir: '.agents', configPath: '.agents/mcp_config.json' },
+  { name: 'Kiro', detectDir: '.kiro', configPath: '.kiro/settings/mcp.json', format: 'mcpServers' },
+  { name: 'Cursor', detectDir: '.cursor', configPath: '.cursor/mcp.json', format: 'mcpServers' },
+  { name: 'Windsurf', detectDir: '.windsurf', configPath: '.windsurf/mcp.json', format: 'mcpServers' },
+  { name: 'Antigravity', detectDir: '.agents', configPath: '.agents/mcp_config.json', format: 'mcpServers' },
+  { name: 'GitHub Copilot', detectDir: '.vscode', configPath: '.vscode/mcp.json', format: 'vscode' },
+  { name: 'Claude Code', detectDir: '.claude', configPath: '.mcp.json', format: 'mcpServers' },
 ];
 
-// All supported clients use { "mcpServers": { ... } } format.
-const SERVERS_KEY = 'mcpServers';
+/** Top-level key holding servers, and the entry shape, per client format. */
+function serversKeyFor(client: McpClient): string {
+  return client.format === 'vscode' ? 'servers' : 'mcpServers';
+}
+function serverEntryFor(client: McpClient, serverPath: string): Record<string, unknown> {
+  return client.format === 'vscode'
+    ? { type: 'stdio', command: 'node', args: [serverPath] }
+    : { command: 'node', args: [serverPath] };
+}
 
 // ---------------------------------------------------------------------------
 // Project rule
@@ -95,12 +109,10 @@ function writeMcpConfig(
     }
   }
 
-  const servers = (existing[SERVERS_KEY] as Record<string, unknown>) ?? {};
-  servers['remindy'] = {
-    command: 'node',
-    args: [serverPath],
-  };
-  existing[SERVERS_KEY] = servers;
+  const key = serversKeyFor(client);
+  const servers = (existing[key] as Record<string, unknown>) ?? {};
+  servers['remindy'] = serverEntryFor(client, serverPath);
+  existing[key] = servers;
 
   mkdirSync(dirname(configFile), { recursive: true });
   writeFileSync(configFile, JSON.stringify(existing, null, 2) + '\n', 'utf8');
@@ -173,6 +185,10 @@ export function runInit(projectDir: string, opts: InitOptions = {}): void {
     console.log(`    { "command": "node", "args": ["${serverPath}"] }`);
   }
   console.log('');
+  console.log('  Other tools (one line, config is global for these):');
+  console.log(`    Codex / ChatGPT:  codex mcp add remindy -- node ${serverPath}`);
+  console.log(`    Trae:  MCP settings > Add > Raw Config:  "remindy": { "command": "node", "args": ["${serverPath}"] }`);
+  console.log('');
 
   // 2. Project rule
   console.log('Project rule:');
@@ -223,13 +239,14 @@ function removeMcpConfig(projectDir: string, client: McpClient): RemoveStatus {
     return 'not-configured';
   }
 
-  const servers = existing[SERVERS_KEY] as Record<string, unknown> | undefined;
+  const key = serversKeyFor(client);
+  const servers = existing[key] as Record<string, unknown> | undefined;
   if (!servers || !('remindy' in servers)) return 'absent';
 
   delete servers['remindy'];
-  // Drop the mcpServers key entirely if remindy was the only entry.
-  if (Object.keys(servers).length === 0) delete existing[SERVERS_KEY];
-  else existing[SERVERS_KEY] = servers;
+  // Drop the servers key entirely if remindy was the only entry.
+  if (Object.keys(servers).length === 0) delete existing[key];
+  else existing[key] = servers;
 
   writeFileSync(configFile, JSON.stringify(existing, null, 2) + '\n', 'utf8');
   return 'removed';

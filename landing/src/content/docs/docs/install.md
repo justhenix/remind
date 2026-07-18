@@ -6,7 +6,11 @@ description: Install Supermemory Local, initialise remindy in your project, and 
 remindy is not a CLI you keep running. After `init` it lives inside your editor as an
 MCP server. The CLI is only for setup, seeding, and the dashboard.
 
-It's published on [npm](https://www.npmjs.com/package/remindy), so every `npx remindy` command below works with no clone.
+It's on [npm](https://www.npmjs.com/package/remindy). Install it globally so editors get a stable server path:
+
+```bash
+npm i -g remindy
+```
 
 ## 1. Start Supermemory Local
 
@@ -18,7 +22,13 @@ curl -fsSL https://supermemory.ai/install | bash
 supermemory-server                 # listens on http://localhost:6767
 ```
 
-Copy the API key it prints on first boot into your `.env` as `SUPERMEMORY_API_KEY`.
+Hand the key it prints on first boot to remindy (it writes to remindy's gitignored `.env`):
+
+```bash
+remindy config set --supermemory-key <key-from-first-boot>
+# and your compression model, e.g. b.ai:
+remindy config set --provider bai --key <bai-key> --model claude-sonnet-5
+```
 
 :::tip[Why it's load-bearing]
 Each editor spawns its own remindy process. A shared external store is the only thing
@@ -34,7 +44,7 @@ npx remindy init --seed
 
 This does three things:
 
-- Registers the remindy MCP server in every detected editor (Kiro, Cursor, Windsurf, Antigravity).
+- Registers the remindy MCP server in every detected editor: Kiro, Cursor, Windsurf, GitHub Copilot (VS Code), Claude Code, and Antigravity. For Codex/ChatGPT and Trae, `init` prints a one-line command to paste.
 - Appends a one-line project rule to your agent rules file (`AGENTS.md`, `CLAUDE.md`, or `.cursorrules`).
 - Seeds standards inferred from your repo, so recall is useful immediately (`--seed`).
 

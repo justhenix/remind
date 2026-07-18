@@ -29,4 +29,7 @@ npx remindy doctor
 
 # Switch compression to a local Ollama model
 npx remindy config set --provider ollama --model qwen2.5-coder:3b
+
+# Set the Supermemory Local key (from supermemory-server's first boot)
+npx remindy config set --supermemory-key <key>
 ```

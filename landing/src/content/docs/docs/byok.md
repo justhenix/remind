@@ -26,6 +26,9 @@ remindy config set --provider openai    --key sk-...     --model gpt-5.6-luna
 remindy config set --provider anthropic --key sk-ant-... --model claude-haiku-4-5
 remindy config set --provider bai       --key ...        --model claude-sonnet-5
 remindy config set --provider ollama    --model qwen2.5-coder:3b
+
+# Supermemory Local key (from supermemory-server's first boot), set the same way:
+remindy config set --supermemory-key <key>
 ```
 
 :::caution

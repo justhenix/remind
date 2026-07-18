@@ -53,19 +53,25 @@ Rule format: `[TAG] anti-pattern → fix (×N)` &nbsp;·&nbsp; `TAG ∈ {UI, COP
 
 ## Install
 
-remindy is on [npm](https://www.npmjs.com/package/remindy), no clone needed. You just need [Supermemory Local](https://supermemory.ai) running as the on-machine store.
+remindy is on [npm](https://www.npmjs.com/package/remindy). Install it globally so editors get a stable server path; you also need [Supermemory Local](https://supermemory.ai) running.
 
 ```bash
-# 1. Start Supermemory Local (Unix binary; WSL2 on Windows)
+npm i -g remindy
+
+# Start the on-machine store (Unix binary; WSL2 on Windows)
 curl -fsSL https://supermemory.ai/install | bash
 supermemory-server                 # http://localhost:6767
 
-# 2. Wire remindy into your editor
-npx remindy init --seed
-npx remindy doctor                 # verify: backend = Supermemory Local
+# Point remindy at the store + your compression model
+remindy config set --supermemory-key <key-from-first-boot>
+remindy config set --provider bai --key <bai-key> --model claude-sonnet-5
+
+# Wire it into your editors, then reload them
+remindy init --seed
+remindy doctor                     # verify: backend = Supermemory Local
 ```
 
-Reload your editor and start coding. See the [docs](https://remindy.henix.my.id/docs) for BYOK and the dashboard.
+`init` auto-registers Kiro, Cursor, Windsurf, GitHub Copilot, Claude Code, and Antigravity, and prints one-line setup for Codex/ChatGPT and Trae. See the [docs](https://remindy.henix.my.id/docs).
 
 ## Commands
 
@@ -75,7 +81,7 @@ Reload your editor and start coding. See the [docs](https://remindy.henix.my.id/
 | `remindy seed` | Infer and store standards from this repo |
 | `remindy doctor` | Check config, LLM, Supermemory; print active backend |
 | `remindy dashboard` | Local web UI at `http://localhost:3456` |
-| `remindy config [set]` | View or set the compression provider (BYOK) |
+| `remindy config [set]` | View or set the compression provider and Supermemory key (BYOK) |
 | `remindy uninstall` | Remove the MCP entry and project rule (stored rules stay) |
 
 ## Uninstall

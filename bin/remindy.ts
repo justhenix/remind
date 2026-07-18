@@ -158,35 +158,46 @@ function parseFlags(args: string[]): Record<string, string> {
  * Examples:
  *   remindy config set --provider bai --key sk-... --model claude-sonnet-5
  *   remindy config set --provider ollama --model qwen2.5-coder:3b
+ *   remindy config set --supermemory-key <key>            (from supermemory-server's first boot)
  */
 function configCommand(sub: string | undefined, rest: string[]): void {
   if (sub === 'set') {
     const f = parseFlags(rest);
+    const updates: Record<string, string | undefined> = {};
+
+    // LLM provider is optional; only written when --provider is passed.
     const provider = f.provider;
-    const updates: Record<string, string | undefined> = { LLM_PROVIDER: provider };
-    if (provider === 'bai') {
-      updates.BAI_API_KEY = f.key;
-      updates.BAI_MODEL = f.model;
-      updates.BAI_API_URL = f.url;
-    } else if (provider === 'openai') {
-      updates.OPENAI_API_KEY = f.key;
-      updates.OPENAI_MODEL = f.model;
-      updates.OPENAI_API_URL = f.url;
-    } else if (provider === 'anthropic') {
-      updates.ANTHROPIC_API_KEY = f.key;
-      updates.ANTHROPIC_MODEL = f.model;
-      updates.ANTHROPIC_API_URL = f.url;
-    } else if (provider === 'ollama') {
-      updates.OLLAMA_MODEL = f.model;
-      updates.OLLAMA_URL = f.url;
-    } else if (provider !== undefined) {
-      console.log(`remindy config: unknown provider "${provider}" (use openai, anthropic, bai, or ollama)`);
-      process.exitCode = 1;
-      return;
+    if (provider !== undefined) {
+      updates.LLM_PROVIDER = provider;
+      if (provider === 'bai') {
+        updates.BAI_API_KEY = f.key;
+        updates.BAI_MODEL = f.model;
+        updates.BAI_API_URL = f.url;
+      } else if (provider === 'openai') {
+        updates.OPENAI_API_KEY = f.key;
+        updates.OPENAI_MODEL = f.model;
+        updates.OPENAI_API_URL = f.url;
+      } else if (provider === 'anthropic') {
+        updates.ANTHROPIC_API_KEY = f.key;
+        updates.ANTHROPIC_MODEL = f.model;
+        updates.ANTHROPIC_API_URL = f.url;
+      } else if (provider === 'ollama') {
+        updates.OLLAMA_MODEL = f.model;
+        updates.OLLAMA_URL = f.url;
+      } else {
+        console.log(`remindy config: unknown provider "${provider}" (use openai, anthropic, bai, or ollama)`);
+        process.exitCode = 1;
+        return;
+      }
     }
+
+    // Supermemory Local credentials, settable without touching the LLM provider.
+    if (f['supermemory-key'] !== undefined) updates.SUPERMEMORY_API_KEY = f['supermemory-key'];
+    if (f['supermemory-url'] !== undefined) updates.SUPERMEMORY_API_URL = f['supermemory-url'];
+
     const written = writeEnvVars(updates);
     if (written.length === 0) {
-      console.log('remindy config: nothing to write (pass --provider and its --key/--model/--url).');
+      console.log('remindy config: nothing to write (pass --provider ... and/or --supermemory-key ...).');
       return;
     }
     console.log(`remindy config: updated ${written.join(', ')} in .env`);
@@ -204,7 +215,8 @@ function configCommand(sub: string | undefined, rest: string[]): void {
   console.log(`  LLM API key:   ${llm.apiKeySet ? 'set' : 'unset'}`);
   console.log(`  Supermemory:   ${sm.url} (key ${isSupermemoryConfigured(sm) ? 'set' : 'unset'})`);
   console.log('');
-  console.log('Set with:  remindy config set --provider bai --key <k> --model <m>');
+  console.log('Set LLM:          remindy config set --provider bai --key <k> --model <m>');
+  console.log('Set Supermemory:  remindy config set --supermemory-key <k>');
 }
 
 async function main(argv: string[]): Promise<void> {

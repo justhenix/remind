@@ -24,6 +24,8 @@ const ALLOWED_KEYS = new Set([
   'BAI_API_URL',
   'BAI_API_KEY',
   'BAI_MODEL',
+  'SUPERMEMORY_API_KEY',
+  'SUPERMEMORY_API_URL',
 ]);
 
 /**
