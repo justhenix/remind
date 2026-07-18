@@ -13,7 +13,8 @@ export default defineConfig({
         'The portable taste & standards layer for AI coding agents. Docs: install, use, and configure.',
       // Docs live under /docs/* (content is nested in src/content/docs/docs/),
       // so the custom marketing homepage keeps ownership of /.
-      logo: { src: './public/favicon.svg', alt: 'remindy' },
+      // No image logo: the site title renders as a typographic wordmark
+      // (Stack Sans Notch, styled in docs.css) instead of an icon/PNG.
       favicon: '/favicon.svg',
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/justhenix/remindy' },

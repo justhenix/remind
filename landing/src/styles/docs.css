@@ -1,4 +1,6 @@
 /* remindy docs theme: green accent over Starlight's dark palette. */
+@import url('https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@400..700&display=swap');
+
 :root {
   --sl-color-accent-low: #17311d;
   --sl-color-accent: #2f7a3f;
@@ -14,10 +16,19 @@
   --sl-color-hairline-shade: #1e211e;
 }
 
+/* Typographic wordmark only, no image/PNG logo. Starlight's logo slot is
+   unset in astro.config.mjs, so .site-title carries the full brand mark. */
 .site-title {
+  font-family: 'Stack Sans Notch', sans-serif;
   font-weight: 700;
+  font-size: 1.05rem;
   letter-spacing: -0.02em;
   text-transform: lowercase;
+  color: #FDFFF8;
+}
+.site-title img,
+.site-title svg {
+  display: none;
 }
 
 /* Inline code and rule tags read as terse tokens, matching the product. */
