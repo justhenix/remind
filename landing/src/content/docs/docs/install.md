@@ -14,13 +14,16 @@ npm i -g remindy
 
 ## 1. Start Supermemory Local
 
-Supermemory Local is the shared, on-machine store. It is a Unix binary; on Windows,
-run it inside WSL2.
+Supermemory Local is the shared, on-machine store. It is a Unix binary; on Windows, run it inside WSL2. (remindy itself runs on the host; WSL forwards `localhost:6767` to Windows.)
 
 ```bash
 curl -fsSL https://supermemory.ai/install | bash
-supermemory-server                 # listens on http://localhost:6767
+~/.local/bin/supermemory-server    # listens on http://localhost:6767
 ```
+
+:::note
+The installer puts the binary in `~/.local/bin`, which is often not on `PATH`, so the bare `supermemory-server` may say "command not found". Call it by full path, or locate it with `find ~ -name supermemory-server -type f 2>/dev/null`.
+:::
 
 Hand the key it prints on first boot to remindy (it writes to remindy's gitignored `.env`):
 

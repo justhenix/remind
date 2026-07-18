@@ -14,7 +14,7 @@ npm run build
 
 # Start Supermemory Local (Unix binary; run inside WSL2 on Windows)
 curl -fsSL https://supermemory.ai/install | bash
-supermemory-server                 # listens on http://localhost:6767
+~/.local/bin/supermemory-server    # http://localhost:6767 (installer may not add it to PATH)
 
 # Register the MCP server, drop the project rule, and seed rules from this repo
 npx remindy init --seed

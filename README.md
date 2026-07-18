@@ -60,7 +60,7 @@ npm i -g remindy
 
 # Start the on-machine store (Unix binary; WSL2 on Windows)
 curl -fsSL https://supermemory.ai/install | bash
-supermemory-server                 # http://localhost:6767
+~/.local/bin/supermemory-server    # http://localhost:6767 (installer may not add it to PATH)
 
 # Point remindy at the store + your compression model
 remindy config set --supermemory-key <key-from-first-boot>

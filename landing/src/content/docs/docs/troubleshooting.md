@@ -7,7 +7,7 @@ description: Fixes for the backend badge, empty recall, and slow capture.
 
 Supermemory Local isn't reachable.
 
-- Start `supermemory-server`, confirm `SUPERMEMORY_API_KEY` in `.env` matches its first-boot key, then run `remindy doctor`.
+- Start it by full path (`~/.local/bin/supermemory-server`; the installer may not add it to PATH), confirm the key via `remindy config set --supermemory-key <k>`, then run `remindy doctor`.
 - Until the backend reads Supermemory Local, memory is per-editor and lost on restart.
 
 ## Recall returns nothing
