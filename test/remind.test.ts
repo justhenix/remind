@@ -27,7 +27,7 @@ function mockClient(content: string | null, onCall?: () => void): OpenAiLike {
 }
 
 const TEST_LLM_CONFIG: LlmConfig = {
-  provider: 'gemini',
+  provider: 'openai',
   baseURL: 'https://example.invalid/',
   apiKey: 'test-key',
   model: 'test-model',
