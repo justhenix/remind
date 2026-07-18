@@ -6,6 +6,8 @@ description: Install Supermemory Local, initialise remindy in your project, and 
 remindy is not a CLI you keep running. After `init` it lives inside your editor as an
 MCP server. The CLI is only for setup, seeding, and the dashboard.
 
+It's published on [npm](https://www.npmjs.com/package/remindy), so every `npx remindy` command below works with no clone.
+
 ## 1. Start Supermemory Local
 
 Supermemory Local is the shared, on-machine store. It is a Unix binary; on Windows,

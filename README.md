@@ -10,6 +10,7 @@
 Teach any MCP agent how you want code written **once**.<br/>
 It stops breaking your standards, in every tool, for **~15 tokens a turn**.
 
+[![npm](https://img.shields.io/npm/v/remindy?style=flat-square&labelColor=0C0C0C&color=CB3837)](https://www.npmjs.com/package/remindy)
 [![Docs](https://img.shields.io/badge/docs-remindy.henix.my.id-4ADE80?style=flat-square&labelColor=0C0C0C)](https://remindy.henix.my.id/docs)
 [![Built on Supermemory Local](https://img.shields.io/badge/built_on-Supermemory_Local-6D5BD0?style=flat-square&labelColor=0C0C0C)](https://supermemory.ai)
 [![Protocol MCP](https://img.shields.io/badge/protocol-MCP-2F6FB0?style=flat-square&labelColor=0C0C0C)](https://modelcontextprotocol.io)
@@ -50,18 +51,21 @@ Rule format: `[TAG] anti-pattern → fix (×N)` &nbsp;·&nbsp; `TAG ∈ {UI, COP
 [SEC]  permissive defaults, missing authz → deny by default, least privilege (×1)
 ```
 
-## Quickstart
+## Install
+
+remindy is on [npm](https://www.npmjs.com/package/remindy), no clone needed. You just need [Supermemory Local](https://supermemory.ai) running as the on-machine store.
 
 ```bash
-npm install && npm run build
-
-# Supermemory Local, the on-machine store (Unix binary; WSL2 on Windows)
+# 1. Start Supermemory Local (Unix binary; WSL2 on Windows)
 curl -fsSL https://supermemory.ai/install | bash
 supermemory-server                 # http://localhost:6767
 
-npx remindy doctor                 # verify: backend = Supermemory Local
+# 2. Wire remindy into your editor
 npx remindy init --seed
+npx remindy doctor                 # verify: backend = Supermemory Local
 ```
+
+Reload your editor and start coding. See the [docs](https://remindy.henix.my.id/docs) for BYOK and the dashboard.
 
 ## Commands
 
