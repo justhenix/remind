@@ -14,28 +14,19 @@ Called **before** writing or editing code. Returns the known standards to avoid.
 | **Input** | `task_context: string` |
 | **Returns** | `{ rules: string[], tokens: number }` |
 
-Behavior: list stored rules via `documents.list` → filter by tag scope → rank by
-keyword relevance × burn count → trim to a roughly 100-token budget → return the
-formatted caveman rules.
+**Flow:** `documents.list` → filter by tag scope → rank by relevance × burn count → trim to ~100 tokens → return formatted rules.
 
-The tool description is imperative on purpose: *always call before writing or editing
-code.*
+The tool description is imperative on purpose: _always call before writing or editing code._
 
 ## remindy_capture
 
-Called when the agent detects any dissatisfaction with its output — an explicit
-correction, or an implicit signal like "meh", "i hate it", or "why are you doing
-that" — or invoked directly by you. The injected project rule tells every agent to
-capture the taste itself, so you rarely trigger this by hand.
+Fires on any sign of dissatisfaction — an explicit correction, or an implicit "meh" / "i hate it" / "why are you doing that". The injected project rule tells every agent to capture taste itself, so you rarely trigger it by hand.
 
 | | |
 | --- | --- |
 | **Input** | `mistake: string, tag?: Tag` |
 | **Returns** | `{ id: string, caveman: string, burns: number }` |
 
-Behavior: an OpenAI-compatible model compresses the correction to
-`[TAG] anti-pattern → fix` → dedup against existing rules (same tag plus matching
-anti-pattern/fix) → if it matches, increment the burn count; otherwise insert a new
-rich memory and its caveman projection.
+**Flow:** model compresses to `[TAG] anti-pattern → fix` → dedup (same tag + matching anti-pattern/fix) → match bumps the burn count, else insert a new rule.
 
-`Tag` is one of `UI`, `COPY`, `CODE`, `COMMIT`, `SEC`, `REQ`, `PERF`.
+`Tag` ∈ `UI · COPY · CODE · COMMIT · SEC · REQ · PERF`.

@@ -46,9 +46,13 @@ Your editor spawns the MCP server on reload. That's it, now just code with your 
 npx remindy doctor
 ```
 
-`doctor` prints the resolved config (secrets masked), runs one real compression, probes
-Supermemory Local, and states the active backend. If it reports anything other than
-Supermemory Local, cross-tool sharing and persistence are off, fix that before a demo.
+`doctor` checks everything in one shot:
+
+- resolved config (secrets masked)
+- one real compression
+- Supermemory Local probe + active backend
+
+Anything other than Supermemory Local means cross-tool sharing and persistence are **off** — fix it before a demo.
 
 ## Setup for reviewers
 
