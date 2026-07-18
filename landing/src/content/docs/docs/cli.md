@@ -23,7 +23,7 @@ npx remindy init --seed
 # Re-seed after big repo changes
 npx remindy seed
 
-# Confirm you're on the shared store before a demo
+# Confirm you're on the shared store
 npx remindy doctor
 
 # Switch compression to a local Ollama model
