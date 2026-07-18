@@ -1,88 +1,99 @@
-# remindy
+<div align="center">
 
-The portable taste & standards layer for AI coding agents. Teach any MCP-compatible
-agent how you want code written once; it stops violating your standards, in every
-tool, for about 15 tokens a turn.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="misc/dark_banner.svg">
+  <img alt="remindy" src="misc/white_banner.svg" width="600">
+</picture>
 
-Linters catch syntax. remindy catches taste: AI-slop UI and copy, non-conventional
-commits, DRY/YAGNI violations, security foot-guns, and building things you didn't ask
-for. It feeds those standards to your agent before it writes.
+### The portable taste &amp; standards layer for AI coding agents
 
-## How you actually use it
+Teach any MCP agent how you want code written **once**.<br/>
+It stops breaking your standards, in every tool, for **~15 tokens a turn**.
 
-remindy is not a CLI you keep running. It is an MCP server your editor spawns for you.
+[![Docs](https://img.shields.io/badge/docs-remindy.henix.my.id-4ADE80?style=flat-square&labelColor=0C0C0C)](https://remindy.henix.my.id/docs)
+[![Built on Supermemory Local](https://img.shields.io/badge/built_on-Supermemory_Local-6D5BD0?style=flat-square&labelColor=0C0C0C)](https://supermemory.ai)
+[![Protocol MCP](https://img.shields.io/badge/protocol-MCP-2F6FB0?style=flat-square&labelColor=0C0C0C)](https://modelcontextprotocol.io)
+[![Runs local-first](https://img.shields.io/badge/runs-local--first-3D7A45?style=flat-square&labelColor=0C0C0C)](https://remindy.henix.my.id/docs)
+[![License MIT](https://img.shields.io/badge/license-MIT-B7791F?style=flat-square&labelColor=0C0C0C)](LICENSE)
 
-1. `npx remindy init --seed`: registers the remindy MCP server in your editor's
-   config, drops a one-line project rule, and seeds standards inferred from THIS repo.
-2. Reload your editor so it picks up the MCP server.
-3. Just code with your agent. It calls `remindy_recall` before writing, and
-   `remindy_capture` when you correct it.
-4. `npx remindy dashboard`: a local web UI to view, edit, and stress-test your rules.
+</div>
+
+---
+
+**Linters catch syntax. remindy catches taste** — AI-slop copy, bespoke UI, vague commits, security foot-guns, and features you never asked for.
+
+> Better models won't fix this. They still don't know how _you_ work, and forget it the moment you switch tools. remindy feeds your standards to the agent **before** it writes.
+
+## How you use it
+
+Not a CLI you babysit — an MCP server your editor spawns.
+
+| # | Do | What happens |
+| --- | --- | --- |
+| 1 | `npx remindy init --seed` | Registers the MCP server, drops a project rule, seeds rules from your repo |
+| 2 | reload your editor | It picks up the MCP server |
+| 3 | just code | Agent calls `remindy_recall` before writing, `remindy_capture` when you correct it |
+| 4 | `npx remindy dashboard` | Local UI to view, edit, and stress-test rules |
 
 ## The loop
 
-`remindy_recall(task_context)` returns a tiny block of known standards to avoid,
-ranked by relevance × burn count and trimmed to a ~100 token budget.
-`remindy_capture(mistake, tag?)` compresses a correction into a caveman rule, dedups
-against existing rules, and either inserts a new rule or increments its burn count.
+- **recall** — agent pulls your known standards, ranked by relevance × burn count, trimmed to ~100 tokens.
+- **capture** — a correction is compressed to one line, deduped, and stored (or its burn count bumps).
 
-Caveman rule format: `[TAG] anti-pattern → fix (×N)` where
-`TAG ∈ {UI, COPY, CODE, COMMIT, SEC, REQ, PERF}`.
+Rule format: `[TAG] anti-pattern → fix (×N)` &nbsp;·&nbsp; `TAG ∈ {UI, COPY, CODE, COMMIT, SEC, REQ, PERF}`
 
-Full docs, including a step-by-step walkthrough and BYOK setup, live at
-**https://remindy.henix.my.id/docs** (source in `landing/`; `npm run dev` there to run locally).
+```text
+[CODE] invented APIs, guessed signatures → verify against the docs first (×4)
+[COPY] "delve/seamless/robust" LLM slop → plain, concrete language (×2)
+[SEC]  permissive defaults, missing authz → deny by default, least privilege (×1)
+```
 
-## What runs where (honest architecture)
-
-- **Supermemory Local** is the shared, on-machine store at `http://localhost:6767`.
-  It is load-bearing: because each editor spawns its own remindy process, a shared
-  external store is the only thing that lets a correction made in one tool show up in
-  another, and the only thing that survives an editor restart. Nothing leaves the
-  machine.
-- **Ranking is local.** Supermemory Local's self-hosted vector search (v0.0.5)
-  returns nothing, so remindy lists rules via `documents.list` and ranks them with a
-  deterministic keyword scorer. Supermemory = storage; remindy = ranking.
-- **Compression** at capture time uses an OpenAI-compatible model (b.ai cloud or local
-  Ollama), chosen by config. Repo inference is deterministic; the model only polishes
-  wording and never blocks a seed.
-
-If Supermemory Local is not configured, remindy falls back to a per-process in-memory
-store. That mode is useful for local dev but is **not shared across tools and not
-persistent**. `remindy doctor` and the dashboard badge say so plainly.
-
-## Repo taste inference
-
-`remindy seed` scans the repository and infers one standard per tag from real signals:
-inline styles vs design tokens (UI), AI-slop words in copy (COPY), tsconfig/React
-patterns (CODE), hardcoded secrets and `.env` coverage (SEC), conventional-commit
-adherence in the git log (COMMIT), and spec/requirements presence (REQ). Where a signal
-is absent, the curated starter pack fills the gap, so recall is useful on the first run.
-
-## Setup for reviewers
+## Quickstart
 
 ```bash
-npm install
-npm run build
-# Start Supermemory Local (Unix binary; run inside WSL2 on Windows):
+npm install && npm run build
+
+# Supermemory Local — the on-machine store (Unix binary; WSL2 on Windows)
 curl -fsSL https://supermemory.ai/install | bash
-supermemory-server                 # listens on http://localhost:6767
-# Put SUPERMEMORY_API_KEY (printed on first boot) and any LLM keys in .env (see .env.example)
-node dist/bin/remindy.js doctor    # verify: all checks PASS, backend = Supermemory Local
-node dist/bin/remindy.js init --seed
+supermemory-server                 # http://localhost:6767
+
+npx remindy doctor                 # verify: backend = Supermemory Local
+npx remindy init --seed
 ```
 
 ## Commands
 
-- `npx remindy init [--seed]` — register the MCP server in detected editors, drop the project rule, optionally seed rules inferred from this repo
-- `npx remindy seed` — infer and store standards from this repo
-- `npx remindy doctor` — check config, LLM, and Supermemory; print the active backend
-- `npx remindy dashboard` — local web UI (http://localhost:3456) to view, edit, and stress-test rules
-- `npx remindy config [set]` — view or set the compression provider (BYOK: ollama, openai, anthropic, bai)
+| Command | Does |
+| --- | --- |
+| `remindy init [--seed]` | Register MCP server + drop rule (+ seed from repo) |
+| `remindy seed` | Infer and store standards from this repo |
+| `remindy doctor` | Check config, LLM, Supermemory; print active backend |
+| `remindy dashboard` | Local web UI at `http://localhost:3456` |
+| `remindy config [set]` | View or set the compression provider (BYOK) |
 
-## Build & test
+## What runs where
+
+- **Supermemory Local** — shared on-machine store + embeddings. Load-bearing: it's what makes a fix in one tool show up in another, and what survives restarts.
+- **Ranking is local** — self-hosted vector search returns nothing (v0.0.5), so remindy lists via `documents.list` and ranks with a deterministic keyword scorer.
+- **Compression** — any OpenAI-compatible model (local Ollama or cloud), config-picked. Only polishes wording; never blocks a seed.
+
+> No Supermemory Local? remindy falls back to a per-process in-memory store — fine for dev, but **not shared and not persistent**. `remindy doctor` says which mode you're in.
+
+## Links
+
+| Item | Link |
+| --- | --- |
+| Docs | https://remindy.henix.my.id/docs |
+| Repository | https://github.com/justhenix/remindy |
+| Supermemory Local | https://supermemory.ai |
+| Model Context Protocol | https://modelcontextprotocol.io |
+
+## Build &amp; test
 
 ```bash
-npm install     # no external services required for tests
-npm run build   # tsc -> dist/
-npm test        # vitest run (single pass)
+npm install    # no external services needed for tests
+npm run build  # tsc → dist/
+npm test       # vitest (single run)
 ```
+
+<div align="center"><sub>2026 · MIT · powered by <a href="https://supermemory.ai">supermemory.ai</a></sub></div>
