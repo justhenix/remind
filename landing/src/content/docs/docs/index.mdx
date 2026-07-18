@@ -1,0 +1,48 @@
+---
+title: remindy docs
+description: The portable taste & standards layer for AI coding agents. Set your standards once; they are enforced in every tool.
+tableOfContents: false
+hero:
+  tagline: Set your standards once. Enforced in every AI coding tool, for about 15 tokens a turn.
+  actions:
+    - text: Quickstart
+      link: /docs/quickstart/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/justhenix/remindy
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+Linters catch syntax. remindy catches **taste**: AI-slop copy, inline styles,
+non-conventional commits, hardcoded secrets, and features nobody asked for. These
+are subjective standards a linter can't catch. You teach remindy once, and it holds
+every AI agent to those standards before it writes.
+
+<CardGrid stagger>
+  <Card title="Portable via MCP" icon="puzzle">
+    A correction made in one tool (say Cursor) is respected by another (Kiro,
+    Claude, Windsurf). One shared memory, every agent.
+  </Card>
+  <Card title="About 15 tokens a turn" icon="rocket">
+    Each rule compresses to a single caveman line, so recall costs almost nothing
+    per code write.
+  </Card>
+  <Card title="Runs on your machine" icon="laptop">
+    Storage and ranking are local via Supermemory Local. Nothing leaves your
+    machine on the default path.
+  </Card>
+  <Card title="Useful on first run" icon="seti:todo">
+    <code>remindy seed</code> infers standards from your repo, so recall returns
+    real guidance before you correct anything.
+  </Card>
+</CardGrid>
+
+## Where to start
+
+- New here? Run through the [Quickstart](/docs/quickstart/) to see the full loop in five minutes.
+- Setting up a machine? See [Install & setup](/docs/install/).
+- Want the mental model? Read [How it works](/docs/how-it-works/).

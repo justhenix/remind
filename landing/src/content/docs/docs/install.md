@@ -1,0 +1,62 @@
+---
+title: Install & setup
+description: Install Supermemory Local, initialise remindy in your project, and reload your editor.
+---
+
+remindy is not a CLI you keep running. After `init` it lives inside your editor as an
+MCP server. The CLI is only for setup, seeding, and the dashboard.
+
+## 1. Start Supermemory Local
+
+Supermemory Local is the shared, on-machine store. It is a Unix binary; on Windows,
+run it inside WSL2.
+
+```bash
+curl -fsSL https://supermemory.ai/install | bash
+supermemory-server                 # listens on http://localhost:6767
+```
+
+Copy the API key it prints on first boot into your `.env` as `SUPERMEMORY_API_KEY`.
+
+:::tip[Why it's load-bearing]
+Each editor spawns its own remindy process. A shared external store is the only thing
+that lets a correction made in one tool show up in another, and the only thing that
+survives an editor restart. Nothing leaves your machine.
+:::
+
+## 2. Initialise remindy in your project
+
+```bash
+npx remindy init --seed
+```
+
+This does three things:
+
+- Registers the remindy MCP server in every detected editor (Kiro, Cursor, Windsurf, Antigravity).
+- Appends a one-line project rule to your agent rules file (`AGENTS.md`, `CLAUDE.md`, or `.cursorrules`).
+- Seeds standards inferred from your repo, so recall is useful immediately (`--seed`).
+
+## 3. Reload your editor
+
+Your editor spawns the MCP server on reload. That's it, now just code with your agent.
+
+## Verify
+
+```bash
+npx remindy doctor
+```
+
+`doctor` prints the resolved config (secrets masked), runs one real compression, probes
+Supermemory Local, and states the active backend. If it reports anything other than
+Supermemory Local, cross-tool sharing and persistence are off, fix that before a demo.
+
+## Setup for reviewers
+
+If you are running from a clone rather than `npx`:
+
+```bash
+npm install
+npm run build
+node dist/bin/remindy.js doctor
+node dist/bin/remindy.js init --seed
+```

@@ -1,0 +1,26 @@
+/* remindy docs theme: green accent over Starlight's dark palette. */
+:root {
+  --sl-color-accent-low: #17311d;
+  --sl-color-accent: #2f7a3f;
+  --sl-color-accent-high: #a7e3b4;
+  --sl-color-text-accent: #4ade80;
+}
+
+/* Dark mode is the brand default; tune neutrals to match the landing page. */
+:root[data-theme='dark'] {
+  --sl-color-bg: #0e0f0e;
+  --sl-color-bg-nav: #0e0f0e;
+  --sl-color-bg-sidebar: #0e0f0e;
+  --sl-color-hairline-shade: #1e211e;
+}
+
+.site-title {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+}
+
+/* Inline code and rule tags read as terse tokens, matching the product. */
+.sl-markdown-content code {
+  font-size: 0.9em;
+}

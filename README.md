@@ -29,6 +29,9 @@ against existing rules, and either inserts a new rule or increments its burn cou
 Caveman rule format: `[TAG] anti-pattern → fix (×N)` where
 `TAG ∈ {UI, COPY, CODE, COMMIT, SEC, REQ, PERF}`.
 
+Full docs, including a step-by-step walkthrough and BYOK setup, live at
+**https://remindy.henix.my.id/docs** (source in `landing/`; `npm run dev` there to run locally).
+
 ## What runs where (honest architecture)
 
 - **Supermemory Local** is the shared, on-machine store at `http://localhost:6767`.
@@ -60,12 +63,21 @@ is absent, the curated starter pack fills the gap, so recall is useful on the fi
 ```bash
 npm install
 npm run build
-# Start Supermemory Local (Unix binary; use WSL2 on Windows):
+# Start Supermemory Local (Unix binary; run inside WSL2 on Windows):
 curl -fsSL https://supermemory.ai/install | bash
-# Put SUPERMEMORY_API_KEY (printed on first boot) and your b.ai keys in .env (see .env.example)
+supermemory-server                 # listens on http://localhost:6767
+# Put SUPERMEMORY_API_KEY (printed on first boot) and any LLM keys in .env (see .env.example)
 node dist/bin/remindy.js doctor    # verify: all checks PASS, backend = Supermemory Local
 node dist/bin/remindy.js init --seed
 ```
+
+## Commands
+
+- `npx remindy init [--seed]` — register the MCP server in detected editors, drop the project rule, optionally seed rules inferred from this repo
+- `npx remindy seed` — infer and store standards from this repo
+- `npx remindy doctor` — check config, LLM, and Supermemory; print the active backend
+- `npx remindy dashboard` — local web UI (http://localhost:3456) to view, edit, and stress-test rules
+- `npx remindy config [set]` — view or set the compression provider (BYOK: ollama, openai, anthropic, bai)
 
 ## Build & test
 
