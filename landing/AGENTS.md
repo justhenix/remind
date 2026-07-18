@@ -1,22 +1,23 @@
-## Development
+# AGENTS.md, remindy landing + docs
 
-When starting the dev server, use background mode:
+Astro + Starlight site: marketing landing at `/`, documentation at `/docs`. Deploys to [remindy.henix.my.id](https://remindy.henix.my.id) via Vercel on push to `main`.
 
-```
-astro dev --background
-```
+## Stack
 
-Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
+- Astro 7, Starlight 0.41 for docs, Tailwind v4 through the `@tailwindcss/vite` plugin.
+- Landing: `src/pages/index.astro`, a single file with scroll-snap sections and anime.js reveals.
+- Docs: Markdown/MDX in `src/content/docs/docs/`; sidebar and config in `astro.config.mjs`.
 
-## Documentation
+## Rules
 
-Full documentation: https://docs.astro.build
+- Do NOT run long-lived servers (`npm run dev`) inside tool calls; the user runs those. Verify with `npm run build`.
+- Restart the dev server after editing `astro.config.mjs`; config changes are not hot-reloaded.
+- Copy is plain and concrete. No AI-slop words (unlock, seamless, elevate, delve) and no em-dashes.
+- Keep docs scannable: bullets, tables, short lines. Not paragraph-heavy.
+- Images shown on npm or GitHub READMEs must use absolute URLs; repo-relative images do not render on npm.
 
-Consult these guides before working on related tasks:
+## Commands
 
-- [Adding pages, dynamic routes, or middleware](https://docs.astro.build/en/guides/routing/)
-- [Working with Astro components](https://docs.astro.build/en/basics/astro-components/)
-- [Using React, Vue, Svelte, or other framework components](https://docs.astro.build/en/guides/framework-components/)
-- [Adding or managing content](https://docs.astro.build/en/guides/content-collections/)
-- [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
-- [Supporting multiple languages](https://docs.astro.build/en/guides/internationalization/)
+- `npm install`
+- `npm run build` (static output to `dist/`)
+- `npm run preview`

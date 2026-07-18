@@ -1,43 +1,23 @@
-# Astro Starter Kit: Minimal
+# remindy landing + docs
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Marketing landing page and documentation site for [remindy](https://github.com/justhenix/remindy), built with Astro and Starlight. Live at [remindy.henix.my.id](https://remindy.henix.my.id).
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Structure
 
-## 🚀 Project Structure
+- `src/pages/index.astro`: the marketing landing (full-viewport scroll-snap sections, anime.js reveals)
+- `src/content/docs/docs/`: Starlight documentation, served at `/docs`
+- `src/styles/`: `global.css` (landing) and `docs.css` (docs theme)
+- `astro.config.mjs`: Starlight integration, sidebar, and site URL
 
-Inside of your Astro project, you'll see the following folders and files:
+## Commands
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+| Command | Action |
+| :--- | :--- |
+| `npm install` | Install dependencies |
+| `npm run dev` | Dev server at `localhost:4321` |
+| `npm run build` | Build the static site to `./dist/` |
+| `npm run preview` | Preview the production build |
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Deploy
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Auto-deploys to Vercel on push to `main` (see `.github/workflows/deploy-docs.yml`). Custom domain: `remindy.henix.my.id`.
