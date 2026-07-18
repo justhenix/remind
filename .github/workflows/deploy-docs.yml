@@ -32,7 +32,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Astro 7 requires Node >=22.12; match Vercel's build runtime.
+          node-version: 22
 
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
