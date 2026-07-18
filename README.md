@@ -10,6 +10,8 @@
 Teach any MCP agent how you want code written **once**.<br/>
 It stops breaking your standards, in every tool, for **~15 tokens a turn**.
 
+<sub>~15 tokens is the cost of one compressed rule; a turn injects the few that match. Recall ranks locally with no model call, $0 API on the default path.</sub>
+
 [![npm](https://img.shields.io/npm/v/remindy?style=flat-square&labelColor=0C0C0C&color=CB3837)](https://www.npmjs.com/package/remindy)
 [![Docs](https://img.shields.io/badge/docs-remindy.henix.my.id-4ADE80?style=flat-square&labelColor=0C0C0C)](https://remindy.henix.my.id/docs)
 [![Built on Supermemory Local](https://img.shields.io/badge/built_on-Supermemory_Local-6D5BD0?style=flat-square&labelColor=0C0C0C)](https://supermemory.ai)

@@ -27,8 +27,8 @@ Better models won't fix it: they still don't know how _you_ work, and forget it 
     Claude, Windsurf). One shared memory, every agent.
   </Card>
   <Card title="About 15 tokens a turn" icon="rocket">
-    Each rule compresses to a single caveman line, so recall costs almost nothing
-    per code write.
+    Each rule compresses to one caveman line, about 15 tokens. Recall ranks
+    locally with no model call, and injects only the few rules that match.
   </Card>
   <Card title="Runs on your machine" icon="laptop">
     Storage and ranking are local via Supermemory Local. Nothing leaves your
@@ -39,6 +39,14 @@ Better models won't fix it: they still don't know how _you_ work, and forget it 
     real guidance before you correct anything.
   </Card>
 </CardGrid>
+
+:::note[On the "~15 tokens" number]
+That figure is the cost of a single compressed rule, the caveman line remindy
+injects. A real turn injects the handful of rules that match your task, and adds
+the two MCP tool definitions every MCP server carries. Recall itself makes no
+model call, it ranks on your machine, so the API cost on the default local path
+is zero.
+:::
 
 ## Where to start
 
