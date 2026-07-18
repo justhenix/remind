@@ -34,7 +34,7 @@ export async function createOfflineDeps(): Promise<RemindyDeps> {
  *  - LlmCompressor when an LLM key+model are set, else the template compressor.
  *
  * Backend selection is logged to STDERR (stdout is reserved for the stdio transport).
- * The real store is intentionally NOT seeded here — seeding on every boot would spam
+ * The real store is intentionally NOT seeded here, seeding on every boot would spam
  * duplicates. Load the starter pack once with `remindy seed` instead.
  */
 export async function createDeps(): Promise<RemindyDeps> {
@@ -89,7 +89,7 @@ export function describeBackend(): BackendStatus {
     supermemoryActive,
     store: supermemoryActive
       ? `Supermemory Local @ ${sm.url} (shared, persistent)`
-      : 'in-memory (offline — NOT shared across tools, NOT persistent)',
+      : 'in-memory (offline, NOT shared across tools, NOT persistent)',
     compressor: isLlmConfigured(llm)
       ? `LLM (${llm.provider}/${llm.model})`
       : 'template (offline)',

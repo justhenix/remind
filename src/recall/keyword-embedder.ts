@@ -1,6 +1,6 @@
 import { Embedder } from './embedder.js';
 
-/** Minimal stopword list — high-frequency words that add noise, not signal. */
+/** Minimal stopword list, high-frequency words that add noise, not signal. */
 const STOPWORDS = new Set([
   'a', 'an', 'the', 'to', 'of', 'in', 'on', 'and', 'or', 'for', 'with',
   'is', 'are', 'it', 'as', 'at', 'by', 'be', 'this', 'that',

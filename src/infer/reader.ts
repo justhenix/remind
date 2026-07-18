@@ -18,7 +18,7 @@ export interface RepoReader {
   gitLog(limit: number): string[];
 }
 
-/** Directories we never walk — vendored, generated, or VCS internals. */
+/** Directories we never walk, vendored, generated, or VCS internals. */
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.astro', '.supermemory']);
 
 /** Cap the walk so a huge repo can't make seed pathologically slow. */

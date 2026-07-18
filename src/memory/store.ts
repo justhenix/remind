@@ -5,8 +5,8 @@ import type { Embedder } from '../recall/embedder.js';
  * Storage abstraction for rich memories.
  *
  * Two implementations exist, so this interface is justified (see conventions.md):
- *  - InMemoryStore   — offline default used by tests and the offline fallback.
- *  - SupermemoryLocalStore — the real on-machine backend (storage via documents.list).
+ *  - InMemoryStore  , offline default used by tests and the offline fallback.
+ *  - SupermemoryLocalStore, the real on-machine backend (storage via documents.list).
  */
 export interface MemoryStore {
   add(m: RichMemory): Promise<void>;

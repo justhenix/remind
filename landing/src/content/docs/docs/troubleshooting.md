@@ -19,7 +19,7 @@ The store is empty. Run `remindy seed`, or capture a rule from the [dashboard](/
 The LLM provider is unreachable, so capture used the fallback template.
 
 - Set a working provider via [BYOK](/docs/byok/) for sharp phrasing.
-- CPU-only? Ollama is slow — use a small model (`qwen2.5-coder:3b`) or a cloud provider.
+- CPU-only? Ollama is slow, use a small model (`qwen2.5-coder:3b`) or a cloud provider.
 
 ## `init` reports no clients detected
 

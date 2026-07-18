@@ -24,9 +24,9 @@ import {
 } from '../src/config/index.js';
 import { writeEnvVars } from '../src/config/env-file.js';
 
-// printInit stub removed — real implementation lives in src/install/init.ts.
+// printInit stub removed, real implementation lives in src/install/init.ts.
 
-/** Never reveal secret values — only whether they are present. */
+/** Never reveal secret values, only whether they are present. */
 function mask(value: string | undefined): string {
   return value ? 'set' : 'unset';
 }
@@ -38,7 +38,7 @@ function errMessage(err: unknown): string {
 /**
  * Smoke check. Prints resolved config (secrets masked), runs one real LLM
  * compression, and probes Supermemory Local. Live failures are reported, never
- * thrown — the offline path always works, so we exit 0.
+ * thrown, the offline path always works, so we exit 0.
  */
 async function doctor(): Promise<void> {
   const llm = resolveLlmConfig();
@@ -109,13 +109,13 @@ async function doctor(): Promise<void> {
  * gaps from the curated starter pack, best-effort polishes wording via b.ai, and
  * stores exactly six rules. Detection is deterministic and never fails; the LLM
  * step is optional. The result: recall returns personalized standards on the very
- * first run — no correction loop required.
+ * first run, no correction loop required.
  */
 async function seedStore(): Promise<void> {
   const sm = resolveSupermemoryConfig();
   if (!isSupermemoryConfigured(sm)) {
     console.log(
-      'remindy seed: SUPERMEMORY_API_KEY not set — nothing to do ' +
+      'remindy seed: SUPERMEMORY_API_KEY not set, nothing to do ' +
         '(offline mode seeds the in-memory store automatically).',
     );
     return;
@@ -152,8 +152,8 @@ function parseFlags(args: string[]): Record<string, string> {
 }
 
 /**
- * `remindy config`         — print the resolved LLM config (key presence only, never the value).
- * `remindy config set ...` — BYOK: write provider/key/model/url to the gitignored .env.
+ * `remindy config`        , print the resolved LLM config (key presence only, never the value).
+ * `remindy config set ...`, BYOK: write provider/key/model/url to the gitignored .env.
  *
  * Examples:
  *   remindy config set --provider bai --key sk-... --model claude-sonnet-5

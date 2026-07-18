@@ -7,7 +7,7 @@ import { INFER_TAGS, type TasteRuleDraft } from './types.js';
  * Run every detector over the repo and collect the drafts they produce.
  *
  * Each detector is wrapped so a thrown error is swallowed and treated as "no
- * signal" for that tag — inference is best-effort and must never fail the seed.
+ * signal" for that tag, inference is best-effort and must never fail the seed.
  * The result is keyed by the detector's own tag, so there is at most one draft
  * per tag and PERF never appears.
  */

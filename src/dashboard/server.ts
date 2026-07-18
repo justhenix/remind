@@ -44,7 +44,7 @@ export async function startDashboard(): Promise<void> {
         return;
       }
 
-      // 1a. GET /favicon.ico — browsers request this directly (bookmarks, pinned
+      // 1a. GET /favicon.ico, browsers request this directly (bookmarks, pinned
       // tabs, history) regardless of the inline <link> icon in the HTML head.
       if (url === '/favicon.ico' && method === 'GET') {
         res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=86400' });
@@ -52,19 +52,19 @@ export async function startDashboard(): Promise<void> {
         return;
       }
 
-      // 1b. GET /api/health — which backend is live (so the demo can't hide isolated memory)
+      // 1b. GET /api/health, which backend is live (so the demo can't hide isolated memory)
       if (url === '/api/health' && method === 'GET') {
         sendJson(res, 200, describeBackend());
         return;
       }
 
-      // 1c. GET /api/config — BYOK view (masked; never returns the key value)
+      // 1c. GET /api/config, BYOK view (masked; never returns the key value)
       if (url === '/api/config' && method === 'GET') {
         sendJson(res, 200, viewLlmConfig());
         return;
       }
 
-      // 1d. POST /api/config — BYOK write to the gitignored .env (localhost only)
+      // 1d. POST /api/config, BYOK write to the gitignored .env (localhost only)
       if (url === '/api/config' && method === 'POST') {
         const body = await parseJsonBody(req);
         const provider = body.provider as string | undefined;
@@ -150,7 +150,7 @@ export async function startDashboard(): Promise<void> {
         return;
       }
 
-      // 4a. POST /api/seed — one-click: load the repo-inferred starter pack.
+      // 4a. POST /api/seed, one-click: load the repo-inferred starter pack.
       // Idempotent (existing ids are skipped), so it is safe to click repeatedly.
       if (url === '/api/seed' && method === 'POST') {
         const result = await seedFromRepo(store, process.cwd());

@@ -9,7 +9,7 @@ const INFERRED_PREFIX = 'inferred-';
 /**
  * Best-effort wording polish for inferred rules via the configured LLM (b.ai).
  *
- * This NEVER changes which tag or which detection outcome was chosen — it only
+ * This NEVER changes which tag or which detection outcome was chosen, it only
  * rewords `antiPattern` / `fix`. Any failure (unconfigured, unreachable, tag
  * mismatch, empty fix, thrown error) keeps the deterministic detection text, so
  * the seed always succeeds.
@@ -53,7 +53,7 @@ async function polishOne(rule: RichMemory, polisher: Compressor): Promise<RichMe
 /**
  * Build the polisher, or null when the LLM isn't usable for this run.
  *
- * Built for any configured cloud provider (OpenAI, Anthropic, b.ai) — local Ollama
+ * Built for any configured cloud provider (OpenAI, Anthropic, b.ai), local Ollama
  * is skipped because it is too slow for a seed on CPU. Uses a throwing strict
  * fallback (same pattern as `remindy doctor`) so a live API/parse failure surfaces
  * as a caught error in polishOne → deterministic text kept, rather than silently

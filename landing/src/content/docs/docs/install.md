@@ -52,7 +52,7 @@ npx remindy doctor
 - one real compression
 - Supermemory Local probe + active backend
 
-Anything other than Supermemory Local means cross-tool sharing and persistence are **off** — fix it before a demo.
+Anything other than Supermemory Local means cross-tool sharing and persistence are **off**: fix it before a demo.
 
 ## Setup for reviewers
 

@@ -1,5 +1,5 @@
 /**
- * `remindy init` — register the remindy MCP server in detected clients + drop project rule.
+ * `remindy init`, register the remindy MCP server in detected clients + drop project rule.
  *
  * Detects MCP-capable editors by their config directories, writes/merges
  * the remindy server entry into each client's mcp.json, and appends a
@@ -41,8 +41,8 @@ const RULE_SECTION = [
   `${RULE_MARKER}`,
   '## remindy',
   'Before writing or editing code, call the `remindy_recall` MCP tool.',
-  'When the user shows any dissatisfaction with your output — "meh", "i hate it",',
-  '"why are you doing that", rewording your text, or reverting your work — call',
+  'When the user shows any dissatisfaction with your output ("meh", "i hate it",',
+  '"why are you doing that", rewording, or reverting your work), call',
   '`remindy_capture` with the anti-pattern and the fix. Catch the taste yourself;',
   "don't wait to be told to remember it.",
   `${RULE_END_MARKER}`,
@@ -91,7 +91,7 @@ function writeMcpConfig(
     try {
       existing = JSON.parse(readFileSync(configFile, 'utf8'));
     } catch {
-      // Corrupt JSON — preserve nothing, overwrite.
+      // Corrupt JSON, preserve nothing, overwrite.
     }
   }
 

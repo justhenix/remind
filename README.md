@@ -20,13 +20,13 @@ It stops breaking your standards, in every tool, for **~15 tokens a turn**.
 
 ---
 
-**Linters catch syntax. remindy catches taste** — AI-slop copy, bespoke UI, vague commits, security foot-guns, and features you never asked for.
+**Linters catch syntax. remindy catches taste**: AI-slop copy, bespoke UI, vague commits, security foot-guns, and features you never asked for.
 
 > Better models won't fix this. They still don't know how _you_ work, and forget it the moment you switch tools. remindy feeds your standards to the agent **before** it writes.
 
 ## How you use it
 
-Not a CLI you babysit — an MCP server your editor spawns.
+Not a CLI you babysit; it's an MCP server your editor spawns.
 
 | # | Do | What happens |
 | --- | --- | --- |
@@ -37,8 +37,8 @@ Not a CLI you babysit — an MCP server your editor spawns.
 
 ## The loop
 
-- **recall** — agent pulls your known standards, ranked by relevance × burn count, trimmed to ~100 tokens.
-- **capture** — a correction is compressed to one line, deduped, and stored (or its burn count bumps).
+- **recall**: agent pulls your known standards, ranked by relevance × burn count, trimmed to ~100 tokens.
+- **capture**: a correction is compressed to one line, deduped, and stored (or its burn count bumps).
 
 Rule format: `[TAG] anti-pattern → fix (×N)` &nbsp;·&nbsp; `TAG ∈ {UI, COPY, CODE, COMMIT, SEC, REQ, PERF}`
 
@@ -53,7 +53,7 @@ Rule format: `[TAG] anti-pattern → fix (×N)` &nbsp;·&nbsp; `TAG ∈ {UI, COP
 ```bash
 npm install && npm run build
 
-# Supermemory Local — the on-machine store (Unix binary; WSL2 on Windows)
+# Supermemory Local, the on-machine store (Unix binary; WSL2 on Windows)
 curl -fsSL https://supermemory.ai/install | bash
 supermemory-server                 # http://localhost:6767
 
@@ -73,11 +73,11 @@ npx remindy init --seed
 
 ## What runs where
 
-- **Supermemory Local** — shared on-machine store + embeddings. Load-bearing: it's what makes a fix in one tool show up in another, and what survives restarts.
-- **Ranking is local** — self-hosted vector search returns nothing (v0.0.5), so remindy lists via `documents.list` and ranks with a deterministic keyword scorer.
-- **Compression** — any OpenAI-compatible model (local Ollama or cloud), config-picked. Only polishes wording; never blocks a seed.
+- **Supermemory Local**: shared on-machine store + embeddings. Load-bearing: it's what makes a fix in one tool show up in another, and what survives restarts.
+- **Ranking is local**: self-hosted vector search returns nothing (v0.0.5), so remindy lists via `documents.list` and ranks with a deterministic keyword scorer.
+- **Compression**: any OpenAI-compatible model (local Ollama or cloud), config-picked. Only polishes wording; never blocks a seed.
 
-> No Supermemory Local? remindy falls back to a per-process in-memory store — fine for dev, but **not shared and not persistent**. `remindy doctor` says which mode you're in.
+> No Supermemory Local? remindy falls back to a per-process in-memory store, fine for dev, but **not shared and not persistent**. `remindy doctor` says which mode you're in.
 
 ## Links
 

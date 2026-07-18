@@ -5,8 +5,8 @@ description: The recall and capture loop, the caveman rule format, and where eac
 
 Two tools, one loop, on every code write:
 
-- **recall** — before writing, the agent pulls your standards, ranked by relevance × burn count, trimmed to ~100 tokens.
-- **capture** — when you correct it, the fix is compressed to one line and stored (or its burn count bumps).
+- **recall**: before writing, the agent pulls your standards, ranked by relevance × burn count, trimmed to ~100 tokens.
+- **capture**: when you correct it, the fix is compressed to one line and stored (or its burn count bumps).
 
 ## Caveman rule format
 
@@ -38,9 +38,9 @@ Examples:
 
 ## What runs where
 
-- **Supermemory Local** — the shared, on-machine store at `http://localhost:6767`. Holds the rich memories + local embeddings.
-- **Ranking is local** — self-hosted vector search returns nothing (current release), so remindy lists via `documents.list` and ranks with a deterministic keyword scorer. Recall needs no LLM.
-- **Compression** — an OpenAI-compatible model at capture time ([BYOK](/docs/byok/)). Unreachable? It falls back to a template so capture never blocks.
+- **Supermemory Local**: the shared, on-machine store at `http://localhost:6767`. Holds the rich memories + local embeddings.
+- **Ranking is local**: self-hosted vector search returns nothing (current release), so remindy lists via `documents.list` and ranks with a deterministic keyword scorer. Recall needs no LLM.
+- **Compression**: an OpenAI-compatible model at capture time ([BYOK](/docs/byok/)). Unreachable? It falls back to a template so capture never blocks.
 
 ## Two-layer data model
 

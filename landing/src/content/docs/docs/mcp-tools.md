@@ -20,7 +20,7 @@ The tool description is imperative on purpose: _always call before writing or ed
 
 ## remindy_capture
 
-Fires on any sign of dissatisfaction — an explicit correction, or an implicit "meh" / "i hate it" / "why are you doing that". The injected project rule tells every agent to capture taste itself, so you rarely trigger it by hand.
+Fires on any sign of dissatisfaction, an explicit correction, or an implicit "meh" / "i hate it" / "why are you doing that". The injected project rule tells every agent to capture taste itself, so you rarely trigger it by hand.
 
 | | |
 | --- | --- |

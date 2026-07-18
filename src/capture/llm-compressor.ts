@@ -74,7 +74,7 @@ export class LlmCompressor implements Compressor {
         return parsed;
       }
     } catch {
-      // Network/auth/parse failure — fall through to the offline template.
+      // Network/auth/parse failure, fall through to the offline template.
     }
     // Fallback keeps capture working even when the LLM is down or misbehaves.
     return this.fallback.compress(mistake, tag);
@@ -104,7 +104,7 @@ function parseCompressed(raw: string, tagOverride?: Tag): Compressed | null {
   const o = obj as Record<string, unknown>;
   const antiPattern = typeof o.antiPattern === 'string' ? o.antiPattern.trim() : '';
   const fix = typeof o.fix === 'string' ? o.fix.trim() : '';
-  // fix is MANDATORY — an empty fix is nagging, so we reject and let the caller fall back.
+  // fix is MANDATORY, an empty fix is nagging, so we reject and let the caller fall back.
   if (antiPattern.length === 0 || fix.length === 0) {
     return null;
   }

@@ -16,7 +16,7 @@ import { KeywordEmbedder } from '../recall/keyword-embedder.js';
  * Storage-only role: Supermemory holds the rules; remindy ranks and dedups locally.
  * The human-readable rule goes in `content`; the structured RichMemory fields live in
  * `metadata` so we can rebuild the rule on the way out. `customId = m.id` gives upsert.
- * We deliberately do NOT use client.search.execute — see search() below.
+ * We deliberately do NOT use client.search.execute, see search() below.
  */
 
 // Supermemory containerTag that rules are stored under. Not user-facing.
@@ -31,7 +31,7 @@ export interface SupermemoryStoreOptions {
 export class SupermemoryLocalStore implements MemoryStore {
   private readonly client: Supermemory;
   private readonly containerTag: string;
-  /** Local ranker — see search() for why we don't use Supermemory's vector search. */
+  /** Local ranker, see search() for why we don't use Supermemory's vector search. */
   private readonly embedder = new KeywordEmbedder();
 
   constructor(config: SupermemoryConfig, opts: SupermemoryStoreOptions = {}) {
@@ -75,7 +75,7 @@ export class SupermemoryLocalStore implements MemoryStore {
    * the rules in our container (list works reliably) and score them with the same
    * deterministic KeywordEmbedder the in-memory store uses. The taste pack is small
    * (tens of rules), so listing + local scoring is cheap and, crucially, needs no
-   * LLM memory-agent step — recall stays fully local and free.
+   * LLM memory-agent step, recall stays fully local and free.
    */
   async search(
     query: string,

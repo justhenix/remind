@@ -7,7 +7,7 @@ import { ENV_PATH } from './index.js';
  * Updates or appends `KEY=value` lines in the project-root .env, preserving every
  * other line, comment, and blank. Only the keys passed in are touched. This is the
  * single place remindy writes credentials, and it writes ONLY to the gitignored
- * .env — nothing is logged and nothing leaves the machine.
+ * .env, nothing is logged and nothing leaves the machine.
  */
 
 /** Keys BYOK is allowed to write. Anything else is ignored, so the writer can't be abused. */

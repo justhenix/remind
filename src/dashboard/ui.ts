@@ -289,7 +289,7 @@ export function getHtml(): string {
           <tbody id="rules-tbody"></tbody>
         </table>
         <div class="empty-state" id="empty-state" style="display:none;">
-          <div>Memory is empty — nothing to recall yet.</div>
+          <div>Memory is empty, nothing to recall yet.</div>
           <button class="btn-action" id="btn-seed-empty" style="margin-top:14px;">Load starter pack</button>
         </div>
       </div>
