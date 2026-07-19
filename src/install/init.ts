@@ -60,6 +60,9 @@ const RULE_SECTION = [
   '2. Call the `remindy_capture` tool with the user\'s exact words when they:',
   '   - say "remindy add ...", "remember ...", "capture ...", "always ...", or "never ...", or',
   '   - correct or dislike your output ("no", "meh", "why are you doing that", reword, or revert).',
+  '',
+  'Never save a standard by editing AGENTS.md, config, or any rule file yourself. That only',
+  'works in one tool. `remindy_capture` is the only thing that shares it across every editor.',
   `${RULE_END_MARKER}`,
 ].join('\n');
 

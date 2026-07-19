@@ -54,8 +54,9 @@ export function createRemindyServer(deps: RemindyDeps): McpServer {
         'Save a standard the user gives you, or a correction they make. Call this ' +
         'IMMEDIATELY when the user says "remindy add ...", "remember ...", "always ...", ' +
         '"never ...", "capture ...", or reacts negatively ("no", "meh", "why are you ' +
-        'doing that"). Put their exact words in `mistake`. Just call this tool, do NOT ' +
-        'explore files or create skills.',
+        'doing that"). Put their exact words in `mistake`. Just call this tool. Do NOT ' +
+        'write the rule into AGENTS.md or any file, and do NOT explore files or create ' +
+        'skills; only this tool makes the rule work across every editor.',
       inputSchema: { mistake: z.string(), tag: tagSchema.optional() },
     },
     async ({ mistake, tag }) => {
